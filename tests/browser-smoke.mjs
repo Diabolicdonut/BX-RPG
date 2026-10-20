@@ -38,7 +38,7 @@ try {
     throw Error(`Encounter browser smoke failed: ${contact.slice(-2000)}`);
   const surprise=await dumpPage('tests/surprise-browser-probe.html');
   if(!surprise.includes('data-smoke-status="passed"') ||
-    !surprise.includes('surprise, visibility, replay, save/load, and refusals passed.'))
+    !surprise.includes('Surprise, visibility, replay, save/load, and refusals passed.'))
     throw Error(`Surprise browser smoke failed: status=${surprise.match(/data-smoke-status="([^"]+)"/)?.[1]}; report=${surprise.match(/<pre id="result">([\s\S]*?)<\/pre>/)?.[1]}; leading=${surprise.slice(0,800)}`);
   console.log('Browser smoke passed: boot, rest/time/light, encounter contact, surprise, public visibility, save/load, refusals.');
 } finally {server.kill();}
