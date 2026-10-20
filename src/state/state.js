@@ -101,6 +101,10 @@ export function migrateSaveState(state) {
   if(exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter']) && state.schemaVersion===3 &&
     validShared(state) &&
     state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state))) {
+    if(state.activeEncounter!==null &&
+      !exact(state.activeEncounter,['kind','dueTurn','packetId','monster',
+        'numberAppearing','distanceFeet','stage']))
+      throw Error('Invalid v3 encounter envelope');
     const contact=state.activeEncounter===null ? null : {
       ...state.activeEncounter,surprise:null,visibility:unestablishedVisibility()
     };

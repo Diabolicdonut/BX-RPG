@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>B/X v0.1.3 surprise browser probe</title></head>
+<body data-smoke-status="pending"><iframe id="game" src="../index.html" title="B/X game"></iframe>
+<pre id="result">Waiting...</pre>
+<script type="module">
+import {createDemoState} from '../src/state/state.js';
+import {SAVE_KEY} from '../src/state/storage.js';
+const frame=document.getElementById('game');
+const mark=(status,text)=>{document.body.dataset.smokeStatus=status;document.getElementById('result').textContent=text;};
+let tried=false;
+const interval=setInterval(()=>{
+  const doc=frame.contentDocument;
+  if(tried || doc?.getElementById('app')?.dataset.bootStatus!=='ready') return;
+  tried=true;clearInterval(interval);
+  try{
+    const verify=(ok,message)=>{if(!ok)throw Error(message);};
+    const text=id=>doc.getElementById(id).textContent;
+    const send=phrase=>{
+      doc.getElementById('command').value=phrase;
+      doc.getElementById('command-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
+    };
+    frame.contentWindow.localStorage.setItem(SAVE_KEY,JSON.stringify(createDemoState(1)));
+    doc.getElementById('load').click();
+    send('we rest for one turn');send('we rest for one turn');
+    send('establish pending encounter');
+    verify(text('turns')==='2' && text('draws')==='3','setup incorrect');
+    send('adjudicate surprise');
+    verify(text('encounter')==='Surprise resolved · visibility unestablished','surprise panel not updated');
+    verify(text('draws')==='5' && text('turns')==='2' &&
+      text('minutes')==='20' && text('revision')==='4','surprise affected wrong game state');
+    verify(text('light').includes('4 turns remaining'),'light changed on surprise');
+    const prose=doc.getElementById('log').textContent.toLowerCase();
+    verify(!prose.includes('goblin') && !prose.includes('distancefeet') &&
+      !prose.includes('monsterroll'),'unestablished data leaked to narration');
+    doc.getElementById('save').click();
+    const saved=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
+    verify(saved.activeEncounter.surprise.partySurprised===true,'own-side surprise not persisted');
+    verify(saved.activeEncounter.visibility.identity==='unestablished','invented identity knowledge');
+    verify(saved.activeEncounter.visibility.distance==='unestablished','invented distance knowledge');
+    doc.getElementById('reset').click();
+    verify(text('encounter')==='None','reset failed');
+    doc.getElementById('load').click();
+    verify(text('encounter')==='Surprise resolved · visibility unestablished' &&
+      text('draws')==='5','save/load lost surprise');
+    send('adjudicate surprise');send('we rest for one turn');
+    send('adjudicate surprise with dragons');
+    verify(text('draws')==='5' && text('turns')==='2' && text('revision')==='4',
+      'refusal mutated surprise state');
+    mark('passed','Surprise, visibility, replay, save/load, and refusals passed.');
+  }catch(error){mark('failed',String(error.stack||error));}
+},25);
+setTimeout(()=>{if(!tried){clearInterval(interval);mark('failed','Game never booted');}},5000);
+</script></body></html>
