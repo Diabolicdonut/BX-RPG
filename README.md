@@ -1,24 +1,24 @@
 # B/X RPG
 
-A self-contained, browser-based, text-first RPG foundation inspired by the architecture of [Known World](https://github.com/Diabolicdonut/BECMI-Mystara). The intended interface is natural-language conversation with an AI referee, while a deterministic engine alone resolves rules, dice, resources, and campaign state.
+A small, self-contained, browser-based, text-first RPG that reuses the **architectural ideas**, not the BECMI rules, of [Known World](https://github.com/Diabolicdonut/BECMI-Mystara). The eventual interface is natural-language conversation with an AI referee; a deterministic engine alone resolves rules, resources, dice, and campaign state.
 
-**v0.1.0 is a functional foundation, not a complete game.** It has a clearly labelled sample character, state-bound status/SVG display, seeded reproducible diagnostic d6 rolls, local JSON save/load, and an AI proposal contract. It has **no live AI connection**; unknown natural-language commands are declined rather than fabricated. `roll d6` is a diagnostic, **not** a B/X player action or combat rule.
+**v0.1.1 is a narrow exploration-turn vertical slice, not a complete game.** Offline phrases such as `we rest for one turn` and `the party rests for 10 minutes` flow through a typed intent, validated deterministic action, authoritative narration, status UI, and save/load. Each turn is 10 minutes, consumes one turn of a lit torch (six-turn limit), and performs a seeded wandering encounter check at the end of every second turn. A generated encounter is **deferred and blocks further turn progression**, because encounter generation is not yet implemented. The sample fighter and starting lit torch are explicit *demonstration fixtures*, not character generation or adventuring equipment purchases. `roll d6` remains a diagnostic, not a B/X player action.
 
-## Run
+## Run and test
 
-Use Node.js 20+ (`npm install` is unnecessary):
+Use Node 20+ (no package install required):
 
 ```sh
 npm run serve
-# open http://localhost:4173/
+# Open http://localhost:4173/
 npm test
-npm run test:browser  # requires locally installed Chromium/Chrome
+npm run test:browser # requires Chromium/Chrome; CI provisions Chrome
 ```
 
-`index.html` also works on GitHub Pages because all modules use relative URLs; opening it with `file://` is not supported by browser module loading. Hosting is static and requires no server-side game runtime.
+The interface uses relative URLs and static ES modules suitable for static hosting including GitHub Pages, though deployment must be configured separately. Browsers do not load this module structure correctly from `file://` URLs.
 
-## Authority and privacy
+## Authority and security
 
-Primary: Tom Moldvay, *D&D Basic Rules* (1981, TSR 1011); David Cook and Steve Marsh, *D&D Expert Rules* (1981, TSR 1012). Secondary for clarification only: *Old-School Essentials Classic Fantasy Rules Tome*, v1.3. In a conflict, original B/X governs. No copyrighted reference PDFs, artwork, or extended passages are distributed here. See `AGENTS.md` for guardrails, `docs/migration-inventory.md` for the read-only Known World assessment, and `docs/ai-referee-contract.md` for integration boundaries.
+The originals govern: Tom Moldvay, *D&D Basic Rules* (1981, TSR 1011), and David Cook/Steve Marsh, *D&D Expert Rules* (1981, TSR 1012). *Old-School Essentials Classic Fantasy Rules Tome* v1.3 is clarification only. This checkpoint cites Basic pages **B19, B21, B53**. Do not import Mentzer/Rules Cyclopedia rules or unrelated expansions. No protected rulebooks/artwork are distributed here.
 
-**Credentials:** Do not place AI keys into browser JavaScript, localStorage, static GitHub Pages settings, or any public GitHub file. A future authenticated server-side proxy will own credentials; the browser will receive only non-secret, scoped responses. Nothing currently contacts an AI service.
+A live AI is **not connected**. Unknown natural-language commands fail without changing state; only whitelisted rest phrases and a diagnostic roll work. Never place API keys into browser JS, localStorage, or public source. A future authenticated server-side proxy is required for credentials and hidden adventure material. See `AGENTS.md`, `docs/ai-referee-contract.md`, `docs/migration-inventory.md`, and `pipeline-state.md`.

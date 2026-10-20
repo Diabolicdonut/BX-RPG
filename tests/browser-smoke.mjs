@@ -1,16 +1,36 @@
 import {spawn} from 'node:child_process';
 import {setTimeout as delay} from 'node:timers/promises';
 const port=4179;
-const node=spawn(process.execPath,['scripts/serve.mjs'],{env:{...process.env,PORT:String(port)},stdio:['ignore','pipe','pipe']});
-let browser;
+const server=spawn(process.execPath,['scripts/serve.mjs'],{
+  env:{...process.env,PORT:String(port)},stdio:['ignore','pipe','pipe']
+});
+const executable=process.env.CHROMIUM_BIN||'chromium';
+async function dumpPage(path){
+  const browser=spawn(executable,['--headless','--no-sandbox','--disable-gpu',
+    '--disable-dev-shm-usage','--virtual-time-budget=4000','--dump-dom',
+    `http://127.0.0.1:${port}/${path}`],{stdio:['ignore','pipe','pipe']});
+  let stdout='',stderr='',timedOut=false;
+  browser.stdout.on('data',chunk=>{stdout+=chunk.toString();});
+  browser.stderr.on('data',chunk=>{stderr+=chunk.toString();});
+  const watchdog=setTimeout(()=>{timedOut=true;browser.kill('SIGKILL');},15000);
+  try {
+    const code=await new Promise((resolve,reject)=>{
+      browser.once('close',resolve);
+      browser.once('error',reject);
+    });
+    if(timedOut||code!==0)throw Error(`Browser process failed ${path}: status ${code}, stderr=${stderr.slice(-800)}`);
+    return stdout;
+  } finally {clearTimeout(watchdog);if(!browser.killed)browser.kill();}
+}
 try {
   await delay(350);
-  const executable=process.env.CHROMIUM_BIN || 'chromium';
-  browser=spawn(executable,['--headless','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--virtual-time-budget=2500','--dump-dom',`http://127.0.0.1:${port}/`],{stdio:['ignore','pipe','pipe']});
-  let stdout='',stderr='';
-  browser.stdout.on('data', chunk => {stdout += chunk.toString();});
-  browser.stderr.on('data', chunk => {stderr += chunk.toString();});
-  const status=await Promise.race([new Promise(resolve=>browser.on('close',resolve)), delay(16000).then(()=>{browser.kill('SIGKILL');throw Error('Chromium timed out');})]);
-  if(status!==0||!stdout.includes('data-boot-status="ready"')||!stdout.includes('Demo shell ready.')||!stdout.includes('Sample Fighter')||!stdout.includes('4/4'))throw Error(`Browser smoke failed status=${status}; dom=${stdout.slice(-1000)}; stderr=${stderr.slice(-500)}`);
-  console.log('Browser DOM smoke passed (Chromium headless, module boot and state render).');
-} finally {node.kill();if(browser&&!browser.killed)browser.kill();}
+  const boot=await dumpPage('');
+  if(!boot.includes('data-boot-status="ready"') ||
+    !boot.includes('B/X exploration-turn slice ready.') ||
+    !boot.includes('Sample Fighter') || !boot.includes('4/4') ||
+    !boot.includes('6 turns remaining'))throw Error(`Browser boot smoke failed: ${boot.slice(-1200)}`);
+  const probe=await dumpPage('tests/browser-probe.html');
+  if(!probe.includes('data-smoke-status="passed"') || !probe.includes('save/load passed.'))
+    throw Error(`Browser command smoke failed: ${probe.slice(-1800)}`);
+  console.log('Browser smoke passed: real module boot, commands, save/load, rest-turn time/light, wandering RNG.');
+} finally {server.kill();}
