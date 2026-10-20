@@ -1,0 +1,34 @@
+name: Foundation validation
+on:
+  push:
+    branches: [main, 'work/**']
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  node-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm test
+      - name: Inspect for committed secrets and banned BECMI imports
+        run: |
+          ! git grep -En '(sk-[A-Za-z0-9]{20,}|-----BEGIN (RSA|OPENSSH|PRIVATE) KEY-----)' -- ':!package.json'
+          ! git ls-files | grep -E '\.(pdf|png|jpg|jpeg|webp)$'
+  chrome-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: browser-actions/setup-chrome@v2
+        id: chrome
+      - name: Run real browser boot test
+        env:
+          CHROMIUM_BIN: ${{ steps.chrome.outputs.chrome-path }}
+        run: npm run test:browser
