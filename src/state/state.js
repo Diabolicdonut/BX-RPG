@@ -4,12 +4,29 @@ import {rollDie} from './rng.js';
 import {validateEncounterPacket} from '../rules/encounter-data.js';
 import {levelOneGoblinContact} from '../content/encounters/level1-goblin.js';
 
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 const own = (o,k) => Object.prototype.hasOwnProperty.call(o,k);
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const exact = (v, keys) => object(v) && Object.keys(v).length === keys.length && keys.every(k=>own(v,k));
 const nonnegative = v => Number.isSafeInteger(v) && v >= 0;
 const initialKeys = ['schemaVersion','ruleset','revision','character','turns','rng','journal'];
+const unestablishedVisibility = () => ({
+  presence:'unestablished',identity:'unestablished',distance:'unestablished'
+});
+const d6 = v => Number.isInteger(v) && v>=1 && v<=6;
+function surpriseDisposition(party,monster) {
+  if(party && monster) return 'mutual-surprise';
+  if(party) return 'party-surprised';
+  if(monster) return 'monster-surprised';
+  return 'neither-surprised';
+}
+function validSurprise(v) {
+  return exact(v,['partyRoll','monsterRoll','partySurprised','monsterSurprised','disposition']) &&
+    d6(v.partyRoll) && d6(v.monsterRoll) &&
+    v.partySurprised === (v.partyRoll<=2) &&
+    v.monsterSurprised === (v.monsterRoll<=2) &&
+    v.disposition === surpriseDisposition(v.partySurprised,v.monsterSurprised);
+}
 
 export function createDemoState(seed = 0x19811011) {
   if (!Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) throw Error('Invalid seed');
@@ -40,22 +57,29 @@ function validRest(e,s) {
     typeof e.torchExpired==='boolean';
 }
 function validContact(e,s){
-  return exact(e,['kind','dueTurn','packetId','monster','numberAppearing','distanceFeet','stage']) &&
+  return exact(e,['kind','dueTurn','packetId','monster','numberAppearing','distanceFeet','stage','surprise','visibility']) &&
     e.kind==='wandering-contact' && e.dueTurn===s.turns+1 && s.turns>0 &&
     s.turns%2===0 && e.packetId===levelOneGoblinContact.id &&
     e.monster==='goblin' && Number.isSafeInteger(e.numberAppearing) &&
     e.numberAppearing>=2 && e.numberAppearing<=8 &&
     Number.isSafeInteger(e.distanceFeet) && e.distanceFeet>=20 &&
     e.distanceFeet<=120 && e.distanceFeet%10===0 &&
-    e.stage==='awaiting-encounter-adjudication';
+    exact(e.visibility,['presence','identity','distance']) &&
+    Object.values(e.visibility).every(value=>value==='unestablished') &&
+    ((e.stage==='awaiting-encounter-adjudication' && e.surprise===null) ||
+      (e.stage==='surprise-adjudicated' && validSurprise(e.surprise)));
 }
 function validContactRecord(e,s){
   return exact(e,['kind','dueTurn']) && e.kind==='encounter.contact' &&
     Number.isSafeInteger(e.dueTurn) && e.dueTurn>=1 && e.dueTurn<=s.turns+1;
 }
+function validSurpriseRecord(e,s) {
+  return exact(e,['kind','dueTurn']) && e.kind==='encounter.surprise' &&
+    Number.isSafeInteger(e.dueTurn) && e.dueTurn>=1 && e.dueTurn<=s.turns+1;
+}
 export function assertValidState(state) {
   if (!exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter']) || state.schemaVersion!==SCHEMA_VERSION ||
-    !validShared(state) || !state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state)) ||
+    !validShared(state) || !state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state)||validSurpriseRecord(e,state)) ||
     !exact(state.light,['kind','remainingTurns']) ||
     !['torch','none'].includes(state.light.kind) ||
     !Number.isInteger(state.light.remainingTurns) || state.light.remainingTurns<0 ||
@@ -71,18 +95,27 @@ export function assertValidState(state) {
   return state;
 }
 
-// Migrate only exact historical v1/v2 save envelopes. Never infer missing
-// resources, encounters or random results. All legacy fields remain unchanged.
+// Exact historical save migrations: no new dice rolls, visibility, or resources.
 export function migrateSaveState(state) {
   if(state?.schemaVersion===SCHEMA_VERSION)return assertValidState(state);
+  if(exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter']) && state.schemaVersion===3 &&
+    validShared(state) &&
+    state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state))) {
+    if(state.activeEncounter!==null &&
+      !exact(state.activeEncounter,['kind','dueTurn','packetId','monster',
+        'numberAppearing','distanceFeet','stage']))
+      throw Error('Invalid v3 encounter envelope');
+    const contact=state.activeEncounter===null ? null : {
+      ...state.activeEncounter,surprise:null,visibility:unestablishedVisibility()
+    };
+    return assertValidState({...state,schemaVersion:SCHEMA_VERSION,activeEncounter:contact});
+  }
   if(exact(state,[...initialKeys,'light','pendingEncounter']) && state.schemaVersion===2 &&
     validShared(state) && state.journal.every(e=>validDiagnostic(e)||validRest(e,state))) {
-    // Validate the original v2 envelope separately before adding new fields.
-    const old={...state,schemaVersion:SCHEMA_VERSION,activeEncounter:null};
-    return assertValidState(old);
+    return assertValidState({...state,schemaVersion:SCHEMA_VERSION,activeEncounter:null});
   }
   if(!exact(state,initialKeys) || state.schemaVersion!==1 || !validShared(state) ||
-      !state.journal.every(validDiagnostic)) throw Error('Invalid or unsupported B/X demo save');
+    !state.journal.every(validDiagnostic)) throw Error('Invalid or unsupported B/X demo save');
   return assertValidState({...state,schemaVersion:SCHEMA_VERSION,
     light:{kind:'none',remainingTurns:0},pendingEncounter:null,activeEncounter:null});
 }
@@ -95,6 +128,7 @@ function validProposal(state,p) {
   if (exact(op,['kind','sides']) && op.kind==='diagnostic.roll' && op.sides===6) return 'diagnostic.roll';
   if (exact(op,['kind']) && op.kind==='dungeon.rest') return 'dungeon.rest';
   if (exact(op,['kind']) && op.kind==='encounter.establish') return 'encounter.establish';
+  if (exact(op,['kind']) && op.kind==='encounter.surprise') return 'encounter.surprise';
   return null;
 }
 export function executeProposal(state,proposal,encounterPacket=levelOneGoblinContact) {
@@ -125,7 +159,8 @@ export function executeProposal(state,proposal,encounterPacket=levelOneGoblinCon
       packetId:encounterPacket.id,monster:encounterPacket.monster,
       numberAppearing:encounterPacket.numberAppearing,
       distanceFeet:(first.value+second.value)*10,
-      stage:'awaiting-encounter-adjudication'};
+      stage:'awaiting-encounter-adjudication',surprise:null,
+      visibility:unestablishedVisibility()};
     // The clock and torch do not advance until the encounter is played.
     // Neither monster nor distance appears in the narration-only outcome.
     const next={...state,revision:state.revision+1,rng:second.rng,
@@ -133,6 +168,36 @@ export function executeProposal(state,proposal,encounterPacket=levelOneGoblinCon
       journal:[...state.journal,{kind:'encounter.contact',dueTurn}].slice(-20)};
     assertValidState(next);
     return {accepted:true,state:next,outcomes:[{kind:'encounter.contact',stage:'awaiting-referee'}]};
+  }
+  if(kind==='encounter.surprise') {
+    // Moldvay Basic B23: each side rolls 1d6, 1–2 is surprised.
+    // The public goblin fixture has no source-backed exception or modifier.
+    // No appearance, distance visibility, initiative or round is inferred.
+    const active=state.activeEncounter;
+    if(!active || active.stage!=='awaiting-encounter-adjudication' || active.surprise!==null)
+      return {accepted:false,state,outcomes:[],error:'No unresolved surprise check'};
+    try {
+      validateEncounterPacket(encounterPacket);
+      if(active.packetId!==encounterPacket.id ||
+        active.monster!==encounterPacket.monster ||
+        active.numberAppearing!==encounterPacket.numberAppearing)
+        throw Error('Encounter packet does not match active contact');
+    } catch {
+      return {accepted:false,state,outcomes:[],error:'Unsupported encounter data'};
+    }
+    const party=rollDie(state.rng,6),monster=rollDie(party.rng,6);
+    const partySurprised=party.value<=2,monsterSurprised=monster.value<=2;
+    const surprise={partyRoll:party.value,monsterRoll:monster.value,
+      partySurprised,monsterSurprised,
+      disposition:surpriseDisposition(partySurprised,monsterSurprised)};
+    const next={...state,revision:state.revision+1,rng:monster.rng,
+      activeEncounter:{...active,stage:'surprise-adjudicated',surprise},
+      journal:[...state.journal,{kind:'encounter.surprise',dueTurn:active.dueTurn}].slice(-20)};
+    assertValidState(next);
+    // Own-side surprise is a player condition. Other-side dice, identity,
+    // separation, and all unestablished perception remain undisclosed.
+    return {accepted:true,state:next,outcomes:[{kind:'encounter.surprise',
+      partySurprised,perception:'unestablished'}]};
   }
   // Moldvay B19, B21, B53: rest is one ten-minute turn; a lit torch burns
   // one turn; wandering check at the end of each second exploration turn.
