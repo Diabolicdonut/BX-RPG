@@ -7,7 +7,8 @@ export function getStatusModel(state) {
     hp:`${c.hp}/${c.hpMax}`,ac:String(c.ac),xp:String(c.xp),
     abilities:Object.entries(c.abilities).map(([k,v])=>`${k.toUpperCase()} ${v}`).join(' · '),
     turns:String(state.turns),minutes:String(state.turns*10),light,
-    encounter:state.activeEncounter?'Contact awaiting referee':'None',
+    encounter:state.activeEncounter ?
+      (state.activeEncounter.stage==='surprise-adjudicated' ? 'Surprise resolved · visibility unestablished' : 'Contact awaiting referee') : 'None',
     draws:String(state.rng.draws),revision:String(state.revision)};
 }
 export function renderState(state,doc=document) {

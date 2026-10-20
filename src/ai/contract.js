@@ -8,6 +8,8 @@ export function parseLocalIntent(text,baseRevision) {
   const diagnostic=parseLocalDiagnostic(text,baseRevision);
   if (diagnostic) return diagnostic;
   if (typeof text!=='string') return null;
+  if (text.trim().toLowerCase()==='adjudicate surprise')
+    return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.surprise'}]};
   if (text.trim().toLowerCase()==='establish pending encounter')
     return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.establish'}]};
   // Intentionally a few complete phrases; never guesses compound requests.
@@ -19,6 +21,10 @@ export function narrateAuthoritativeResult(result) {
   if (!result.accepted) return `Action declined: ${result.error}. State unchanged.`;
   const outcome=result.outcomes[0];
   if(outcome.kind==='diagnostic.roll') return `Diagnostic d6: ${outcome.value}. This is not a B/X game action.`;
+  if(outcome.kind==='encounter.surprise')
+    return outcome.partySurprised ?
+      'The party is caught off guard. What is present and visible has not yet been established.' :
+      'The party is not caught off guard. What is present and visible has not yet been established.';
   if(outcome.kind==='encounter.contact')
     return 'A pending wandering contact has been recorded. Its identity, distance, and visibility require further referee adjudication; time has not advanced.';
   if(outcome.kind==='dungeon.rest') {

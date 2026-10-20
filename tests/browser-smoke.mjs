@@ -26,7 +26,7 @@ try {
   await delay(350);
   const boot=await dumpPage('');
   if(!boot.includes('data-boot-status="ready"') ||
-    !boot.includes('B/X encounter-contact boundary ready.') ||
+    !boot.includes('B/X surprise boundary ready.') ||
     !boot.includes('Sample Fighter') || !boot.includes('4/4') ||
     !boot.includes('6 turns remaining'))throw Error(`Browser boot smoke failed: ${boot.slice(-1200)}`);
   const probe=await dumpPage('tests/browser-probe.html');
@@ -36,5 +36,9 @@ try {
   if(!contact.includes('data-smoke-status="passed"') ||
      !contact.includes('contact, visibility filtering, RNG, save/load, and refusals passed.'))
     throw Error(`Encounter browser smoke failed: ${contact.slice(-2000)}`);
-  console.log('Browser smoke passed: boot, legacy commands, rest/time/light, encounter contact, public visibility, saved state, refusals.');
+  const surprise=await dumpPage('tests/surprise-browser-probe.html');
+  if(!surprise.includes('data-smoke-status="passed"') ||
+    !surprise.includes('surprise, visibility, replay, save/load, and refusals passed.'))
+    throw Error(`Surprise browser smoke failed: ${surprise.slice(-2000)}`);
+  console.log('Browser smoke passed: boot, rest/time/light, encounter contact, surprise, public visibility, save/load, refusals.');
 } finally {server.kill();}
