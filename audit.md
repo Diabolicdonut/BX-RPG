@@ -1,10 +1,10 @@
 # Acceptance audit (newest first)
 
-## v0.1.2 — CANDIDATE — minimum B/X wandering-contact boundary
+## v0.1.2 — QUALIFIED CANDIDATE — minimum B/X wandering-contact boundary
 
 Source-backed scope: Moldvay Basic B53 level-one goblin in 2–8 appearing, demo DM-selected count 2, and B23/B53 2d6×10-foot uncertain separation. Validated standalone public encounter packet. Strict one-action `encounter.establish` accepts *only* a pending scheduled wandering check, consumes two saved d6 with no extra turn or torch consumption, and preserves an active contact until later adjudication. Unknown/stale/data-forgery refusals are atomic; stage-only public narration contains no monster identity or private dice. v3 save schema migrates exact v1/v2 saves without inventing light or encounters. Browser remains public and cannot securely conceal private adventure state; **the fixture is nonsecret test content only**.
 
-**Status: candidate pending GitHub Actions and PR acceptance.** The latest fully accepted baseline is still v0.1.1. New and inherited Node/Chrome checks must pass before this entry may be marked fully accepted; record exact CI/PR/SHA then. No live AI integration, surprise, reactions, combat, or adventure importer. No Known World changes. Exact next prospective checkpoint v0.1.3 source-verified surprise boundary.
+**Evidence:** exact game candidate `d90f03639e68cf5e7cc2f9d17ab54d42d381e895` passed GitHub Actions run `39449666766` for PR #5: **28/28 Node tests, zero failures**; independent real Chrome boot, previous rest/time/light/save/reload tests and the new seeded contact/visibility/refusal/save-reload browser probe all passed; committed-secret/prohibited-asset checks passed. Local direct Chrome unavailable; GitHub Chrome was authoritative. **Status: qualified candidate; merge and exact main verification pending.** The latest fully accepted baseline remains v0.1.1 until promotion. New and inherited Node/Chrome checks must pass before this entry may be marked fully accepted; record exact CI/PR/SHA then. No live AI integration, surprise, reactions, combat, or adventure importer. No Known World changes. Exact next prospective checkpoint v0.1.3 source-verified surprise boundary.
 
 
 
