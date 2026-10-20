@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>B/X browser integration smoke</title></head>
+<body data-smoke-status="pending">
+<iframe id="game" src="../index.html" title="B/X game"></iframe>
+<pre id="result">Waiting for B/X shell...</pre>
+<script>
+(() => {
+  const output=document.getElementById('result');
+  const mark=(status,info)=>{document.body.dataset.smokeStatus=status;output.textContent=info;};
+  const iframe=document.getElementById('game');
+  let tried=false;
+  const check=()=>{
+    if(tried)return;
+    const doc=iframe.contentDocument;
+    if(!doc || doc.getElementById('app')?.dataset.bootStatus!=='ready')return;
+    tried=true;
+    try{
+      const text=id=>doc.getElementById(id).textContent;
+      const submit=phrase=>{
+        doc.getElementById('command').value=phrase;
+        doc.getElementById('command-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
+      };
+      const verify=(condition,message)=>{if(!condition)throw Error(message);};
+      verify(text('light').includes('6 turns remaining'),'initial torch not present');
+      submit('we rest for one turn');
+      verify(text('turns')==='1' && text('minutes')==='10','command did not advance exactly one turn');
+      verify(text('light').includes('5 turns remaining'),'torch did not consume one turn');
+      verify(text('draws')==='0','premature wandering check');
+      doc.getElementById('save').click();
+      doc.getElementById('reset').click();
+      verify(text('turns')==='0','reset did not reset');
+      doc.getElementById('load').click();
+      verify(text('turns')==='1' && text('light').includes('5 turns remaining'),'save/load lost authoritative state');
+      submit('I search for a hidden dragon');
+      verify(text('turns')==='1' && text('draws')==='0','unsupported command mutated game');
+      submit('the party rests for 10 minutes');
+      verify(text('turns')==='2' && text('draws')==='1' && text('minutes')==='20','wandering schedule or command path wrong');
+      verify(text('light').includes('4 turns remaining'),'second torch turn wrong');
+      mark('passed','Browser command, time/light, seeded wander schedule, rejection, and save/load passed.');
+    } catch(error){mark('failed',String(error.stack||error));}
+  };
+  const tick=setInterval(()=>{check();if(tried)clearInterval(tick);},25);
+  setTimeout(()=>{if(!tried){clearInterval(tick);mark('failed','Game never reached ready state');}},3000);
+})();
+</script>
+</body></html>

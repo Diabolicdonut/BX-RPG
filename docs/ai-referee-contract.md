@@ -1,15 +1,19 @@
-# AI referee boundary · v0.1.0 contract
+# AI referee boundary · v0.1.1
 
-Status: **interface defined; remote AI not connected.** No fake AI responses. A tiny **explicit local diagnostic parser** recognizes only `roll d6`. Free-form prose is declined without changing state.
+**Implemented:** one strict offline intent path (`dungeon.rest`) and the original diagnostic (`diagnostic.roll`). **Not implemented:** live AI connection, general free-form parsing, encounters, and module importing. The local whitelist recognizes explicitly stated one-turn rest commands only; it is *not* a mock AI service.
 
-Proposed message shape (strictly untrusted, engine validates it):
+Example offline player text: `The party rests for 10 minutes`.
+
+Proposed operation, untrusted at all times:
 
 ```json
-{"contract":"bx.intent.v1","baseRevision":0,"operations":[{"kind":"diagnostic.roll","sides":6}]}
+{"contract":"bx.intent.v1","baseRevision":0,"operations":[{"kind":"dungeon.rest"}]}
 ```
 
-`executeProposal(state, proposal)` validates the version, expected revision, op whitelist, operands, and state; it **never accepts** AI-provided RNG outcomes, HP, journal, flags, or state patches. All or nothing: rejected proposal means the original state and RNG are returned unchanged. Accepted diagnostic roll returns an authoritative typed outcome and next state; the presentation layer narrates **only** that outcome. Adding real B/X actions requires rule-source review and new tests. The v0.1.0 sample sheet has no hidden adventure material and is explicitly noncanonical.
+The engine checks contract, exact operation keys, one-operation atomicity, and current revision. Reject stale/unknown/additional operands **without RNG or state mutation**. An accepted `dungeon.rest` advances one 10-minute dungeon turn and consumes one turn of an active torch. At the end of every second dungeon turn the engine privately checks 1d6 for a wandering encounter (1 = encounter next turn). If triggered, it persists a *pending* event and refuses further dungeon-turn progression until a genuine encounter resolver exists; it never fabricates a monster, map, room, or result. The narrator receives **only** public outcome fields (time and light), not encounter roll/result or hidden content. A `diagnostic.roll` remains available solely for regression testing and does not advance dungeon time.
 
-Future secure integration: browser sends player text and bounded **player-visible** context to an authenticated backend; backend owns API key, verifies request/session, obtains a schema-constrained proposed intent from the model, returns an untrusted proposal for deterministic engine validation; narration receives only sanitized, already adjudicated player-visible outcomes. A trusted server authority / signed action channel is required for adversarial multiplayer or protected adventure secrets. GitHub Pages alone **cannot** securely host private API keys or referee-only data.
+Source: **Moldvay (1981)** Basic p. B19 (10-minute turn and rest), B21 (6-turn torch), B53 (wandering check after every two turns; encounter in following turn). Cook/Marsh Expert supplements Basic but does not override these procedures. No rules were derived from BECMI or Rules Cyclopedia.
 
-Future adapter must handle ambiguous or unsupported intent with a clarification, never invent a dungeon room, enemy, hidden trap, or result. The engine persists exact RNG state and operation results so a save/reload does not reroll.
+Save schema v2 records exact RNG, light, public journal and pending encounter. Legacy v1 demo saves migrate on load: preserve existing character/time/dice/journal; assign `light.kind='none'` because historical saves do **not** establish ownership of a lit torch. The initial storage key is retained. Old serialized data is validated before migration. Neither migration nor rejected proposals rolls dice.
+
+**Future AI service boundary:** client sends player text and player-visible scoped state only; an authenticated server-side proxy owns provider credentials and validates requests; the model returns an untrusted typed proposal. The deterministic engine adjudicates, and narration receives only authorized, player-visible outcomes. Hidden adventure content should be held server-side, not inside a GitHub Pages application. No API keys or fake AI requests appear in this checkpoint.

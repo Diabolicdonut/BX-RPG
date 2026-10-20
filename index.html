@@ -7,12 +7,12 @@
 </head>
 <body>
 <main id="app" data-boot-status="pending">
-  <header><h1>B/X RPG</h1><p>1981 Moldvay / Cook · v0.1.0 foundation</p></header>
+  <header><h1>B/X RPG</h1><p>1981 Moldvay / Cook · v0.1.1 exploration-turn slice</p></header>
   <div class="layout">
     <section aria-label="Referee conversation" class="play">
       <h2>Referee transcript</h2>
-      <p class="notice">AI disconnected · only local diagnostics function. This is not complete B/X play.</p>
-      <form id="command-form"><label for="command">Your action</label><div class="command-row"><input id="command" placeholder="Try: help, status, roll d6" autocomplete="off" required><button type="submit">Send</button></div></form>
+      <p class="notice">AI disconnected · explicit offline rest commands and diagnostics only. B/X combat, encounters, and adventure content are not connected.</p>
+      <form id="command-form"><label for="command">Your action</label><div class="command-row"><input id="command" placeholder="Try: we rest for one turn" autocomplete="off" required><button type="submit">Send</button></div></form>
       <div id="log" aria-live="polite" aria-label="Conversation log"></div>
       <div class="actions"><button id="save" type="button">Save locally</button><button id="load" type="button">Load locally</button><button id="reset" type="button">Reset demo</button></div>
     </section>
@@ -23,7 +23,7 @@
       <p id="hero-abilities" class="abilities"></p>
       <h2>State-derived schematic</h2>
       <svg viewBox="0 0 240 110" role="img" aria-label="Sample fighter hit point indicator"><rect x="12" y="15" width="216" height="80" rx="8" fill="none" stroke="currentColor" opacity=".55"/><circle cx="40" cy="54" r="14" fill="currentColor"/><text x="64" y="42" fill="currentColor" font-size="12">Demo party</text><rect x="64" y="52" width="144" height="13" rx="3" fill="#404754"/><rect id="hp-bar" x="64" y="52" width="0" height="13" rx="3" fill="#8dc9a7"/></svg>
-      <h2>Campaign status</h2><dl><dt>Dungeon turns</dt><dd id="turns"></dd><dt>RNG draws</dt><dd id="draws"></dd><dt>Revision</dt><dd id="revision"></dd></dl>
+      <h2>Campaign status</h2><dl><dt>Dungeon turns</dt><dd id="turns"></dd><dt>Elapsed minutes</dt><dd id="minutes"></dd><dt>Light</dt><dd id="light"></dd><dt>RNG draws</dt><dd id="draws"></dd><dt>Revision</dt><dd id="revision"></dd></dl>
     </aside>
   </div>
   <footer>Deterministic engine authoritative · No credentials or external runtime</footer>
