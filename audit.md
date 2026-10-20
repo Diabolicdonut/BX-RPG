@@ -1,10 +1,10 @@
 # Acceptance audit (newest first)
 
-## v0.1.3 — QUALIFIED CANDIDATE — surprise and visibility boundary
+## v0.1.3 — FULLY ACCEPTED — surprise and visibility boundary
 
 Source: original Moldvay Basic **B23**, unmodified d6 per side, surprise on 1–2, both/one/neither cases and mutual cancellation. Only the B53/B23 public goblin contact is eligible; engine saves exact seeded rolls and four-case disposition, maintains independent `visibility` attributes as `unestablished`, and narrates only the party's own surprised status. No time/light/contact distance changes, initiative, reaction, combat or secure hidden-world claims. Schema v4 migrates validated v1/v2/v3 without assumptions; unknown, stale, duplicate, tampered and malformed packets fail before RNG use. **AI disconnected; Known World untouched.**
 
-Qualification: implementation and tests exact head `36896f6d30acedf2f5b10246311bcada2263bf6c` passed **36/36 Node** and real-Chrome boot/legacy + encounter contact + surprise command/save/load/visibility/refusal probes on GitHub Actions **39456337404** (both jobs green). Current candidate awaiting metadata PR validation and merge. Previous v0.1.2 main remains accepted until promotion. Next checkpoint **v0.1.4 — perception evidence / conditional player-visible encounter disclosure**, no reaction, initiative or combat.
+**Acceptance:** Implementation and tests at `36896f6d30acedf2f5b10246311bcada2263bf6c` passed GitHub Actions `39456337404` (**36/36 Node** plus real-Chrome previous/new command and persistence probes). Qualified documentation head `478a1fd006895d771054e645bea23a59f8928de0` passed the same two CI jobs on `39456609590`. PR #7 merged into `main` at `0a655b20218c27f0a94aa05e628f1e8fc4ec85c7`; exact merged-main Node/Chrome run `39456742620` and GitHub Pages run `39456742190` succeeded. This closeout edits audit and pipeline only, not application/test bytes. No later checkpoint begun. Next checkpoint: **v0.1.4 — validated perception evidence / player-visible encounter disclosure boundary**, with no initiative, reactions or combat.
 
 
 ## v0.1.2 — FULLY ACCEPTED — minimum B/X wandering-contact boundary
