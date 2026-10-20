@@ -1,7 +1,7 @@
 # B/X RPG pipeline
 
 - **Latest fully accepted game baseline:** **v0.1.1** on `main` at `524b070248e25123ea8de3272973ed5634026e11`, PR #3 merged gameplay `f942b3746bca9a3fd5435293514ae4f7df9f22ba`, v0.1.1 PR #4 docs-only closeout. CI `39419176066` successful; earlier exact implementation CI `39418733594` successful (19 Node and Chrome).
-- **Current checkpoint:** **v0.1.2 — candidate / pending independent GitHub validation**, branch `work/v0.1.2-wandering-contact`. Do not describe this candidate as accepted or deployed before its exact CI and PR acceptance.
+- **Current checkpoint:** **v0.1.2 — qualified candidate / GitHub validation green; merge pending**, branch `work/v0.1.2-wandering-contact`. Exact game candidate `d90f03639e68cf5e7cc2f9d17ab54d42d381e895` passed 28/28 Node and real Chrome via PR #5 Actions `39449666766`; game code is qualified, but do not describe it as accepted or deployed before final merge/main verification.
 - **Candidate scope:** public source-verified B53 level-one goblin fixture, strict packet validation, deterministic B23/B53 2d6×10 contact distance on `encounter.establish`, pending-to-active lifecycle and blocked unsupported turns, exact v1/v2→v3 save migration, player-outcome-only narration, browser/Node regression additions.
 - **Security limitation:** public demo packets only. Browser source/localStorage are inspectable and do not secure hidden DM knowledge. Never put actual referee-only adventure data into the static app or client saves. Real secure DM data needs authenticated server authority.
 - **Source authority:** original Moldvay (1981) Basic B19, B21, B23, B53; Cook/Marsh Expert primary extension; OSE Classic v1.3 clarification only. Not BECMI-derived.
