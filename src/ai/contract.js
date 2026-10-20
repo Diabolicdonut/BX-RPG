@@ -8,6 +8,8 @@ export function parseLocalIntent(text,baseRevision) {
   const diagnostic=parseLocalDiagnostic(text,baseRevision);
   if (diagnostic) return diagnostic;
   if (typeof text!=='string') return null;
+  if (text.trim().toLowerCase()==='establish pending encounter')
+    return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.establish'}]};
   // Intentionally a few complete phrases; never guesses compound requests.
   const pattern=/^(?:we|the party|our party) (?:rest|rests|take a rest|takes a rest)(?: for (?:one|1|a) turn| for (?:ten|10)[ -]minutes?)?[.!]?$/i;
   if (!pattern.test(text.trim())) return null;
@@ -17,6 +19,8 @@ export function narrateAuthoritativeResult(result) {
   if (!result.accepted) return `Action declined: ${result.error}. State unchanged.`;
   const outcome=result.outcomes[0];
   if(outcome.kind==='diagnostic.roll') return `Diagnostic d6: ${outcome.value}. This is not a B/X game action.`;
+  if(outcome.kind==='encounter.contact')
+    return 'A pending wandering contact has been recorded. Its identity, distance, and visibility require further referee adjudication; time has not advanced.';
   if(outcome.kind==='dungeon.rest') {
     const light=outcome.lightKind==='none' ? 'No light source is recorded.' :
       outcome.torchExpired ? 'The torch burns out.' :

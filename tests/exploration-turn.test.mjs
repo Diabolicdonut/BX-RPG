@@ -23,7 +23,7 @@ test('offline exact-phrase parser bridges player prose to one typed turn, not ar
 });
 test('one B/X rest turn advances 10 minutes, uses one torch turn, no random draw',()=>{
   const original=createDemoState(123),result=successful(original);
-  assert.equal(result.state.schemaVersion,2);
+  assert.equal(result.state.schemaVersion,3);
   assert.equal(result.state.turns,1);assert.equal(result.state.revision,1);
   assert.deepEqual(result.state.light,{kind:'torch',remainingTurns:5});
   assert.equal(result.state.rng.draws,0);
@@ -97,7 +97,7 @@ test('no light resource is invented when migrating exact v0.1.0 save',()=>{
 test('legacy save retains an existing diagnostic journal and next RNG result',()=>{
   const initial=createDemoState(33);
   const d=executeProposal(initial,{contract:'bx.intent.v1',baseRevision:0,operations:[{kind:'diagnostic.roll',sides:6}]});
-  const {light,pendingEncounter,...old}=d.state;
+  const {light,pendingEncounter,activeEncounter,...old}=d.state;
   const migrated=decodeSave(JSON.stringify({...old,schemaVersion:1}));
   assert.deepEqual(migrated.rng,d.state.rng);
   assert.deepEqual(migrated.journal,d.state.journal);
@@ -133,7 +133,7 @@ test('tampered light/pending/turn records, schema, and unexpected save fields fa
 });
 test('UI binds exploration time and torch independently from narration',()=>{
   let s=successful(createDemoState(7)).state;
-  const nodes=new Map();for(const id of ['hero-name','hero-class','hero-hp','hero-ac','hero-xp','hero-abilities','turns','minutes','light','draws','revision','hp-bar'])
+  const nodes=new Map();for(const id of ['hero-name','hero-class','hero-hp','hero-ac','hero-xp','hero-abilities','turns','minutes','light','draws','revision','hp-bar','encounter'])
     nodes.set(id,{textContent:null,attributes:{},setAttribute(k,v){this.attributes[k]=v;}});
   const doc={getElementById:id=>nodes.get(id)};
   renderState(s,doc);

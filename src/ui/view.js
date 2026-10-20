@@ -7,13 +7,14 @@ export function getStatusModel(state) {
     hp:`${c.hp}/${c.hpMax}`,ac:String(c.ac),xp:String(c.xp),
     abilities:Object.entries(c.abilities).map(([k,v])=>`${k.toUpperCase()} ${v}`).join(' · '),
     turns:String(state.turns),minutes:String(state.turns*10),light,
+    encounter:state.activeEncounter?'Contact awaiting referee':'None',
     draws:String(state.rng.draws),revision:String(state.revision)};
 }
 export function renderState(state,doc=document) {
   const m=getStatusModel(state);
   for(const [id,key] of [['hero-name','name'],['hero-class','classLevel'],['hero-hp','hp'],
     ['hero-ac','ac'],['hero-xp','xp'],['hero-abilities','abilities'],
-    ['turns','turns'],['minutes','minutes'],['light','light'],
+    ['turns','turns'],['minutes','minutes'],['light','light'],['encounter','encounter'],
     ['draws','draws'],['revision','revision']]) doc.getElementById(id).textContent=m[key];
   // Presentation cannot infer or alter referee-only encounter state.
   doc.getElementById('hp-bar').setAttribute('width',String(Math.round(144*state.character.hp/state.character.hpMax)));
