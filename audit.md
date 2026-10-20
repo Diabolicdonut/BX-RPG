@@ -1,5 +1,12 @@
 # Acceptance audit (newest first)
 
+## v0.1.3 — QUALIFIED CANDIDATE — surprise and visibility boundary
+
+Source: original Moldvay Basic **B23**, unmodified d6 per side, surprise on 1–2, both/one/neither cases and mutual cancellation. Only the B53/B23 public goblin contact is eligible; engine saves exact seeded rolls and four-case disposition, maintains independent `visibility` attributes as `unestablished`, and narrates only the party's own surprised status. No time/light/contact distance changes, initiative, reaction, combat or secure hidden-world claims. Schema v4 migrates validated v1/v2/v3 without assumptions; unknown, stale, duplicate, tampered and malformed packets fail before RNG use. **AI disconnected; Known World untouched.**
+
+Qualification: implementation and tests exact head `36896f6d30acedf2f5b10246311bcada2263bf6c` passed **36/36 Node** and real-Chrome boot/legacy + encounter contact + surprise command/save/load/visibility/refusal probes on GitHub Actions **39456337404** (both jobs green). Current candidate awaiting metadata PR validation and merge. Previous v0.1.2 main remains accepted until promotion. Next checkpoint **v0.1.4 — perception evidence / conditional player-visible encounter disclosure**, no reaction, initiative or combat.
+
+
 ## v0.1.2 — FULLY ACCEPTED — minimum B/X wandering-contact boundary
 
 Source-backed scope: Moldvay Basic B53 level-one goblin in 2–8 appearing, demo DM-selected count 2, and B23/B53 2d6×10-foot uncertain separation. Validated standalone public encounter packet. Strict one-action `encounter.establish` accepts *only* a pending scheduled wandering check, consumes two saved d6 with no extra turn or torch consumption, and preserves an active contact until later adjudication. Unknown/stale/data-forgery refusals are atomic; stage-only public narration contains no monster identity or private dice. v3 save schema migrates exact v1/v2 saves without inventing light or encounters. Browser remains public and cannot securely conceal private adventure state; **the fixture is nonsecret test content only**.
