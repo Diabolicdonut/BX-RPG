@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>B/X v0.1.2 encounter browser probe</title></head>
+<body data-smoke-status="pending">
+<iframe id="game" src="../index.html" title="B/X game"></iframe><pre id="result">Waiting...</pre>
+<script type="module">
+import {createDemoState} from '../src/state/state.js';
+import {SAVE_KEY} from '../src/state/storage.js';
+const output=document.getElementById('result');
+const mark=(status,msg)=>{document.body.dataset.smokeStatus=status;output.textContent=msg;};
+const frame=document.getElementById('game');
+let tried=false;
+const timer=setInterval(()=>{
+  const doc=frame.contentDocument;
+  if(tried||!doc||doc.getElementById('app')?.dataset.bootStatus!=='ready')return;
+  tried=true;clearInterval(timer);
+  try{
+    const txt=id=>doc.getElementById(id).textContent;
+    const check=(ok,msg)=>{if(!ok)throw Error(msg);};
+    const send=text=>{doc.getElementById('command').value=text;
+      doc.getElementById('command-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));};
+    // Seed 1 is a known deterministic first wandering check of 1 on the original
+    // RNG, verified in Node; injected through ordinary v0.1.2 save/load UI.
+    frame.contentWindow.localStorage.setItem(SAVE_KEY,JSON.stringify(createDemoState(1)));
+    doc.getElementById('load').click();
+    send('we rest for one turn');send('we rest for one turn');
+    check(txt('turns')==='2'&&txt('draws')==='1','encounter check did not fire correctly');
+    check(txt('encounter')==='None','hidden pending event leaked into panel');
+    send('establish pending encounter');
+    check(txt('encounter')==='Contact awaiting referee','contact not reflected in public UI');
+    check(txt('turns')==='2'&&txt('minutes')==='20'&&txt('draws')==='3','distance dice altered time/RNG');
+    check(!doc.getElementById('log').textContent.toLowerCase().includes('goblin'),'identity leaked to narration');
+    doc.getElementById('save').click();
+    doc.getElementById('reset').click();
+    check(txt('encounter')==='None','reset failed');
+    doc.getElementById('load').click();
+    check(txt('encounter')==='Contact awaiting referee'&&txt('draws')==='3','contact not restored');
+    send('we rest for one turn');send('establish pending encounter');send('establish pending encounter with dragons');
+    check(txt('turns')==='2'&&txt('draws')==='3'&&txt('revision')==='3','refusals mutated state');
+    check(!doc.getElementById('log').textContent.toLowerCase().includes('goblin'),'monster identity leaked');
+    mark('passed','Encounter contact, visibility filtering, RNG, save/load, and refusals passed.');
+  }catch(error){mark('failed',String(error.stack||error));}
+},30);
+setTimeout(()=>{if(!tried){clearInterval(timer);mark('failed','Game never booted');}},5000);
+</script></body></html>

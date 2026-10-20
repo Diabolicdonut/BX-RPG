@@ -24,7 +24,7 @@ test('stale, invented outcomes and unknown operations fail without RNG mutation'
   }
 });
 test('save schema rejects unsupported and tampered data',()=>{
-  for(const patch of [{schemaVersion:3},{ruleset:'BECMI'},{rng:{state:-1,draws:0}},{character:{name:'Forged'}},{turns:-1},{revision:null}]){
+  for(const patch of [{schemaVersion:99},{ruleset:'BECMI'},{rng:{state:-1,draws:0}},{character:{name:'Forged'}},{turns:-1},{revision:null}]){
     const s={...createDemoState(),...patch};assert.throws(()=>assertValidState(s));
   }
   assert.throws(()=>decodeSave('{bad json'));assert.throws(()=>decodeSave('null'));
@@ -42,7 +42,7 @@ test('local parser is explicitly not a free-form AI',()=>{
 test('UI model and bound HP bar come only from engine state',()=>{
   const state=createDemoState(1),model=getStatusModel(state);
   assert.equal(model.hp,'4/4');assert.equal(model.revision,'0');
-  const nodes=new Map();for(const id of ['hero-name','hero-class','hero-hp','hero-ac','hero-xp','hero-abilities','turns','minutes','light','draws','revision','hp-bar'])nodes.set(id,{textContent:null,attributes:{},setAttribute(k,v){this.attributes[k]=v;}});
+  const nodes=new Map();for(const id of ['hero-name','hero-class','hero-hp','hero-ac','hero-xp','hero-abilities','turns','minutes','light','draws','revision','hp-bar','encounter'])nodes.set(id,{textContent:null,attributes:{},setAttribute(k,v){this.attributes[k]=v;}});
   renderState(state,{getElementById:id=>nodes.get(id)});
   assert.equal(nodes.get('hero-hp').textContent,'4/4');assert.equal(nodes.get('hp-bar').attributes.width,'144');
   const next=executeProposal(state,proposal(0)).state;renderState(next,{getElementById:id=>nodes.get(id)});
