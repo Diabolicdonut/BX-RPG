@@ -1,10 +1,10 @@
 # Acceptance audit (newest first)
 
-## v0.1.4 — QUALIFIED CANDIDATE — conditional encounter perception
+## v0.1.4 — FULLY ACCEPTED — conditional encounter perception
 
 Scope: Moldvay Basic p. B21 (30-foot torch illumination) and p. B23 (referee contextual sight/distance). Explicit public authored corridor evidence is validated separately from existing B53 public goblin contact. `encounter.perceive` accepts only the already surprise-adjudicated contact, preserves RNG/time/light, and discloses only justified visible presence, independently recognized identity, and qualitative within-torchlight proximity; otherwise all facts remain unestablished. Schema v5 preserves exact earlier saves including v4. No maps, monster AI, initiative, reactions, combat, private data or live AI. Known World untouched.
 
-**Qualification:** exact candidate `56e31b52db38064154cf030e7bbc3fbac3a7a7cd` passed GitHub Actions `40327685978`: **45/45 Node**, browser-runner syntax gate, secrets/prohibited-assets scan, and real Chrome boot, old exploration/contact/surprise and new perception command/save/load/refusal integrations. Earlier failures `40327187694` and `40327512222` were caused solely by bad browser-harness regex syntax; the harness was repaired and guarded by a Node syntax check. **Awaiting qualified-metadata CI and PR #9 merge.** Previous v0.1.3 remains accepted on main. Exact next checkpoint after acceptance: **v0.1.5 — minimal encounter transition/knowledge continuity boundary**, no initiative/reactions/combat.
+**Acceptance evidence:** executable candidate `56e31b52db38064154cf030e7bbc3fbac3a7a7cd` passed GitHub Actions `40327685978` (**45/45 Node**, browser syntax gate, secrets scan and Chrome real-browser boot, historic command/contact/surprise/perception save/load/refusal tests). Qualified documentation head `a124c190b13784225f27af0b4cdffb930d369331` passed both CI jobs on `40327898928`. PR #9 merged to `main` as `a4640dc4700f4c742c1fcb92d4cc72d74c7d758b`. Exact merged-main Actions `40328016336` passed Node/Chrome; GitHub Pages deployment `40328016038` succeeded. Earlier syntax-only browser-harness failures were repaired and guarded by CI. No Known World changes, no secret-world browser guarantees, no live AI, no initiative, reaction or combat. This closeout edits documentation only, not executable bytes. **Next v0.1.5: minimal encounter transition / established player-knowledge continuity**, separate checkpoint.
 
 
 
