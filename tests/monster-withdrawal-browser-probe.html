@@ -1,0 +1,54 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>B/X v0.1.7 reciprocal disposition</title></head>
+<body data-smoke-status="pending"><iframe id="game" src="../index.html" title="B/X RPG"></iframe>
+<pre id="result">Waiting...</pre><script type="module">
+import {createDemoState} from '../src/state/state.js';
+import {SAVE_KEY} from '../src/state/storage.js';
+const frame=document.getElementById('game');
+const mark=(status,t)=>{document.body.dataset.smokeStatus=status;document.getElementById('result').textContent=t;};
+let tried=false;const ticker=setInterval(()=>{
+  const doc=frame.contentDocument;
+  if(tried||doc?.getElementById('app')?.dataset.bootStatus!=='ready')return;
+  tried=true;clearInterval(ticker);
+  try {
+    const check=(b,msg)=>{if(!b)throw Error(msg);};
+    const txt=id=>doc.getElementById(id).textContent;
+    const send=msg=>{doc.getElementById('command').value=msg;
+      doc.getElementById('command-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));};
+    frame.contentWindow.localStorage.setItem(SAVE_KEY,JSON.stringify(createDemoState(61)));
+    doc.getElementById('load').click();
+    send('resolve public demo monster withdrawal');
+    check(txt('revision')==='0','premature monster withdrawal accepted');
+    for(const cmd of ['we rest for one turn','we rest for one turn','establish pending encounter',
+      'adjudicate surprise','assess encounter visibility','handoff encounter'])send(cmd);
+    check(txt('encounter')==='Awaiting referee · Goblin visible within torchlight','contact setup failed');
+    send('resolve public demo monster withdrawal');
+    check(txt('encounter')==='Concluded · creatures withdrew','wrong closure text');
+    check(txt('revision')==='7'&&txt('turns')==='3'&&txt('draws')==='5','wrong clock, RNG or revision');
+    check(txt('light').includes('3 turns remaining'),'torch wrong');
+    const narration=doc.getElementById('log').firstElementChild.textContent;
+    check(narration.includes('creatures withdraw; the party does not pursue'),'wrong disposition narration');
+    check(!narration.includes('goblin')&&!narration.includes('30 feet'),'private details leaked');
+    doc.getElementById('save').click();
+    const saved=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
+    check(saved.schemaVersion===8&&saved.activeEncounter===null &&
+      saved.lastEncounter.disposition==='monsters-withdrew-unpursued','wrong archived fate');
+    check(saved.lastEncounter.contact.visibility.identity==='goblin','knowledge not preserved');
+    doc.getElementById('reset').click();doc.getElementById('load').click();
+    check(txt('encounter')==='Concluded · creatures withdrew'&&txt('draws')==='5','reload lost conclusion');
+    send('resolve public demo monster withdrawal');send('kill goblins');
+    check(txt('revision')==='7'&&txt('turns')==='3','duplicate or untrusted request accepted');
+    send('we rest for one turn');
+    check(txt('turns')==='4'&&txt('draws')==='6'&&txt('revision')==='8','exploration/check not resumed');
+    frame.contentWindow.localStorage.setItem(SAVE_KEY,JSON.stringify(createDemoState(1)));
+    doc.getElementById('load').click();
+    for(const cmd of ['we rest for one turn','we rest for one turn','establish pending encounter',
+      'adjudicate surprise','assess encounter visibility','handoff encounter',
+      'resolve public demo monster withdrawal'])send(cmd);
+    check(txt('encounter')==='Concluded · creatures withdrew','distance case rejected');
+    const distant=doc.getElementById('log').firstElementChild.textContent.toLowerCase();
+    check(!distant.includes('goblin')&&!distant.includes('70 feet'),'unknown identity leaked');
+    mark('passed','Monster withdrawal, no pursuit, strict save and resumption passed.');
+  }catch(err){mark('failed',String(err.stack||err));}
+},25);
+setTimeout(()=>{if(!tried){clearInterval(ticker);mark('failed','Game never booted');}},5000);
+</script></body></html>
