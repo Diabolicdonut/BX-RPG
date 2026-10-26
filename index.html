@@ -7,11 +7,11 @@
 </head>
 <body>
 <main id="app" data-boot-status="pending">
-  <header><h1>B/X RPG</h1><p>1981 Moldvay / Cook · v0.1.4 perception boundary</p></header>
+  <header><h1>B/X RPG</h1><p>1981 Moldvay / Cook · v0.1.5 knowledge-handoff boundary</p></header>
   <div class="layout">
     <section aria-label="Referee conversation" class="play">
       <h2>Referee transcript</h2>
-      <p class="notice">AI disconnected · explicit offline rest commands and diagnostics only. Public goblin and authored corridor-evidence fixtures only; sight depends on light and clear line of sight. No live AI, combat, secure hidden data, or adventure module.</p>
+      <p class="notice">AI disconnected · explicit offline rest commands and diagnostics only. Public goblin and authored corridor-evidence fixtures only; sight depends on light and clear line of sight. Encounter handoff preserves sightings without resolving monsters. No live AI, combat, secure hidden data, or adventure module.</p>
       <form id="command-form"><label for="command">Your action</label><div class="command-row"><input id="command" placeholder="Try: we rest for one turn" autocomplete="off" required><button type="submit">Send</button></div></form>
       <div id="log" aria-live="polite" aria-label="Conversation log"></div>
       <div class="actions"><button id="save" type="button">Save locally</button><button id="load" type="button">Load locally</button><button id="reset" type="button">Reset demo</button></div>
