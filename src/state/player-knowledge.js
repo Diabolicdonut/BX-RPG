@@ -2,7 +2,7 @@
 // projection. Never return monster-count, exact distance, dice or fixture IDs.
 // This is public-browser filtering, NOT secure hiding of referee data.
 export function projectPlayerEncounterKnowledge(state) {
-  const encounter=state.activeEncounter;
+  const encounter=state.activeEncounter??state.lastEncounter?.contact??null;
   const sight=encounter?.visibility;
   return {
     partySurprised:encounter?.surprise ? encounter.surprise.partySurprised : null,

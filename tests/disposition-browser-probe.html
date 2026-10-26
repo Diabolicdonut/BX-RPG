@@ -1,0 +1,49 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>B/X v0.1.6 disposition</title></head>
+<body data-smoke-status="pending"><iframe id="game" src="../index.html" title="B/X"></iframe>
+<pre id="result">Waiting...</pre><script type="module">
+import {createDemoState} from '../src/state/state.js';
+import {SAVE_KEY} from '../src/state/storage.js';
+const frame=document.getElementById('game');
+const mark=(s,v)=>{document.body.dataset.smokeStatus=s;document.getElementById('result').textContent=v;};
+let tried=false;const clock=setInterval(()=>{
+ const doc=frame.contentDocument;
+ if(tried||doc?.getElementById('app')?.dataset.bootStatus!=='ready')return;
+ tried=true;clearInterval(clock);
+ try{
+  const assert=(ok,msg)=>{if(!ok)throw Error(msg);};
+  const read=id=>doc.getElementById(id).textContent;
+  const send=phrase=>{doc.getElementById('command').value=phrase;
+   doc.getElementById('command-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));};
+  frame.contentWindow.localStorage.setItem(SAVE_KEY,JSON.stringify(createDemoState(61)));
+  doc.getElementById('load').click();send('resolve public demo nonpursuit');
+  assert(read('turns')==='0'&&read('revision')==='0','premature resolution accepted');
+  send('we rest for one turn');send('we rest for one turn');send('establish pending encounter');
+  send('adjudicate surprise');send('assess encounter visibility');send('handoff encounter');
+  assert(read('encounter')==='Awaiting referee · Goblin visible within torchlight','bad setup');
+  send('resolve public demo nonpursuit');
+  assert(read('encounter')==='Concluded · withdrew without pursuit','not concluded');
+  assert(read('turns')==='3'&&read('minutes')==='30'&&read('draws')==='5'&&read('revision')==='7','wrong time or dice');
+  assert(read('light').includes('3 turns remaining'),'torch consumption wrong');
+  doc.getElementById('save').click();
+  const saved=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
+  assert(saved.schemaVersion===7&&saved.activeEncounter===null&&saved.lastEncounter.closedTurn===3,'archive wrong');
+  assert(saved.lastEncounter.contact.visibility.identity==='goblin','knowledge lost');
+  doc.getElementById('reset').click();doc.getElementById('load').click();
+  assert(read('encounter')==='Concluded · withdrew without pursuit','restore wrong');
+  send('resolve public demo nonpursuit');send('kill goblins');
+  assert(read('turns')==='3'&&read('revision')==='7'&&read('draws')==='5','unsupported mutate');
+  send('we rest for one turn');
+  assert(read('turns')==='4'&&read('draws')==='6'&&read('revision')==='8','B53 resumed wrongly');
+  frame.contentWindow.localStorage.setItem(SAVE_KEY,JSON.stringify(createDemoState(1)));
+  doc.getElementById('load').click();
+  for(const command of ['we rest for one turn','we rest for one turn','establish pending encounter',
+    'adjudicate surprise','assess encounter visibility','handoff encounter','resolve public demo nonpursuit'])
+    send(command);
+  assert(read('encounter')==='Concluded · withdrew without pursuit','distant closure failed');
+  const narrated=doc.getElementById('log').firstElementChild.textContent;
+  assert(!narrated.includes('goblin')&&!narrated.includes('70 feet'),'unknown facts exposed');
+  mark('passed','Verified nonpursuit, turn accounting, knowledge and save/load passed.');
+ }catch(e){mark('failed',String(e.stack||e));}
+},25);
+setTimeout(()=>{if(!tried){clearInterval(clock);mark('failed','Game never booted');}},5000);
+</script></body></html>

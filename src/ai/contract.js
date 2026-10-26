@@ -8,6 +8,8 @@ export function parseLocalIntent(text,baseRevision) {
   const diagnostic=parseLocalDiagnostic(text,baseRevision);
   if (diagnostic) return diagnostic;
   if (typeof text!=='string') return null;
+  if (text.trim().toLowerCase()==='resolve public demo nonpursuit')
+    return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.conclude'}]};
   if (text.trim().toLowerCase()==='handoff encounter')
     return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.handoff'}]};
   if (text.trim().toLowerCase()==='assess encounter visibility')
@@ -25,6 +27,13 @@ export function narrateAuthoritativeResult(result) {
   if (!result.accepted) return `Action declined: ${result.error}. State unchanged.`;
   const outcome=result.outcomes[0];
   if(outcome.kind==='diagnostic.roll') return `Diagnostic d6: ${outcome.value}. This is not a B/X game action.`;
+  if(outcome.kind==='encounter.closed') {
+    const light=outcome.lightKind==='none' ? 'No light is recorded.' :
+      outcome.torchExpired ? 'The torch burns out.' :
+      outcome.lightRemaining===0 ? 'The torch is out.' :
+      `The torch has ${outcome.lightRemaining} turns remaining.`;
+    return `The party withdraws; the creatures do not pursue. The encounter ends. Dungeon turn ${outcome.turn}. ${light}`;
+  }
   if(outcome.kind==='encounter.handoff') {
     const knowledge=outcome.knowledge.visibility;
     const sight=knowledge.presence==='visible'

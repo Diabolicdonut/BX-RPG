@@ -100,7 +100,7 @@ test('invalid, stale, duplicate, and data-forged surprise requests refuse atomic
 test('exact v3 active contact and pending saves migrate without inventing surprise or knowing presence',()=>{
   for(const seed of [1,13]) {
     const s=contact(seed);
-    const old={...s,schemaVersion:3,
+    const {lastEncounter,...oldState}=s;const old={...oldState,schemaVersion:3,
       activeEncounter:((({surprise,visibility,evidenceId,...retained})=>retained)(s.activeEncounter))};
     const migrated=decodeSave(JSON.stringify(old));
     assert.equal(migrated.schemaVersion,SCHEMA_VERSION);
@@ -115,9 +115,9 @@ test('exact v3 active contact and pending saves migrate without inventing surpri
   let pending=createDemoState(1);
   pending=executeProposal(pending,intent(pending,'dungeon.rest')).state;
   pending=executeProposal(pending,intent(pending,'dungeon.rest')).state;
-  const legacy={...pending,schemaVersion:3};delete legacy.activeEncounter;
+  const {lastEncounter,...pendingV3}=pending;const legacy={...pendingV3,schemaVersion:3};delete legacy.activeEncounter;
   assert.throws(()=>decodeSave(JSON.stringify(legacy)),'v3 must have exact activeEncounter');
-  const migrated=decodeSave(JSON.stringify({...pending,schemaVersion:3}));
+  const migrated=decodeSave(JSON.stringify({...pendingV3,schemaVersion:3}));
   assert.deepEqual(migrated.pendingEncounter,pending.pendingEncounter);
   assert.equal(migrated.activeEncounter,null);
 });

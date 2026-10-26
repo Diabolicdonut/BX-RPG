@@ -97,7 +97,7 @@ test('no light resource is invented when migrating exact v0.1.0 save',()=>{
 test('legacy save retains an existing diagnostic journal and next RNG result',()=>{
   const initial=createDemoState(33);
   const d=executeProposal(initial,{contract:'bx.intent.v1',baseRevision:0,operations:[{kind:'diagnostic.roll',sides:6}]});
-  const {light,pendingEncounter,activeEncounter,...old}=d.state;
+  const {light,pendingEncounter,activeEncounter,lastEncounter,...old}=d.state;
   const migrated=decodeSave(JSON.stringify({...old,schemaVersion:1}));
   assert.deepEqual(migrated.rng,d.state.rng);
   assert.deepEqual(migrated.journal,d.state.journal);

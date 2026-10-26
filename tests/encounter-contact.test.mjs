@@ -102,9 +102,9 @@ test('cannot establish nonexistent contact, repeat resolution or skip unresolved
 });
 test('identical seed and migrated/reloaded pending event reproduce full contact, without reroll after load',()=>{
   const pending=triggered();
-  const oldSave={...pending,schemaVersion:2};delete oldSave.activeEncounter;
+  const oldSave={...pending,schemaVersion:2};delete oldSave.activeEncounter;delete oldSave.lastEncounter;
   const migrated=decodeSave(JSON.stringify(oldSave));
-  assert.equal(migrated.schemaVersion,6);assert.equal(migrated.activeEncounter,null);
+  assert.equal(migrated.schemaVersion,7);assert.equal(migrated.activeEncounter,null);
   assert.deepEqual(migrated.rng,pending.rng);assert.deepEqual(migrated.pendingEncounter,pending.pendingEncounter);
   const a=executeProposal(pending,intent(pending));const b=executeProposal(migrated,intent(migrated));
   assert.deepEqual(a,b);

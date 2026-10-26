@@ -12,7 +12,7 @@ export function getStatusModel(state) {
     hp:`${c.hp}/${c.hpMax}`,ac:String(c.ac),xp:String(c.xp),
     abilities:Object.entries(c.abilities).map(([k,v])=>`${k.toUpperCase()} ${v}`).join(' · '),
     turns:String(state.turns),minutes:String(state.turns*10),light,
-    encounter:state.activeEncounter ?
+    encounter:state.lastEncounter && !state.activeEncounter ? 'Concluded · withdrew without pursuit' : state.activeEncounter ?
       (state.activeEncounter.stage==='awaiting-referee-continuation'
         ? `Awaiting referee · ${handoffSight}` :
        (state.activeEncounter.stage==='perception-adjudicated' ?

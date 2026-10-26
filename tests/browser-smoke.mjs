@@ -26,7 +26,7 @@ try {
   await delay(350);
   const boot=await dumpPage('');
   if(!boot.includes('data-boot-status="ready"') ||
-    !boot.includes('B/X knowledge-handoff boundary ready.') ||
+    !boot.includes('B/X disposition boundary ready.') ||
     !boot.includes('Sample Fighter') || !boot.includes('4/4') ||
     !boot.includes('6 turns remaining'))throw Error(`Browser boot smoke failed: ${boot.slice(-1200)}`);
   const probe=await dumpPage('tests/browser-probe.html');
@@ -48,5 +48,10 @@ try {
   if(!handoff.includes('data-smoke-status="passed"') ||
     !handoff.includes('Handoff continuity, persistence, knowledge filtering and refusals passed.'))
     throw Error(`Handoff browser smoke failed: ${handoff.slice(0,1600)}`);
-  console.log('Browser smoke passed: boot, encounters, surprise, perception, handoff, save/load, refusals.');
+  const closed=await dumpPage('tests/disposition-browser-probe.html');
+  if(!closed.includes('data-smoke-status="passed"') ||
+    !closed.includes('Verified nonpursuit, turn accounting, knowledge and save/load passed.'))
+    throw Error(`Disposition browser smoke failed: ${closed.slice(0,1400)}`);
+  console.log('Browser smoke passed: boot, exploration, encounter, surprise, perception, handoff, verified disposition, saves.');
+
 } finally {server.kill();}

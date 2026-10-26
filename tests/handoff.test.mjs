@@ -110,7 +110,7 @@ test('known and unestablished outcomes replay exactly across save/reload without
   }
 });
 test('exact v5 saves migrate without inventing a handoff or changing established knowledge',()=>{
-  const before=perceived(),old={...before,schemaVersion:5};
+  const before=perceived(),{lastEncounter,...v5}=before,old={...v5,schemaVersion:5};
   const migrated=decodeSave(JSON.stringify(old));
   assert.equal(migrated.schemaVersion,SCHEMA_VERSION);
   assert.deepEqual(migrated.activeEncounter,before.activeEncounter);
@@ -122,7 +122,7 @@ test('exact v5 saves migrate without inventing a handoff or changing established
     activeEncounter:{...old.activeEncounter,stage:'awaiting-referee-continuation'}}));
   assert.throws(()=>migrateSaveState({...old,journal:[...old.journal,{kind:'encounter.handoff',dueTurn:3}]}));
   const empty=createDemoState(61);
-  const oldEmpty={...empty,schemaVersion:5};
+  const {lastEncounter:unusedArchive,...emptyV5}=empty;const oldEmpty={...emptyV5,schemaVersion:5};
   assert.deepEqual(decodeSave(JSON.stringify(oldEmpty)),empty);
 });
 test('forged stage, knowledge, journal, or encounter completion in persisted state fails closed',()=>{
