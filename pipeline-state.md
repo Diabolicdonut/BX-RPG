@@ -1,8 +1,8 @@
 # B/X RPG pipeline
 
-- **v0.1.5 QUALIFIED CANDIDATE — NOT YET ACCEPTED:** PR #11 `work/v0.1.5-knowledge-handoff`. Exact code/test head `be7e92308c1eb4871a8d925de2b9f983ffd2b0e8` passed GitHub Actions `40331496756`, **55/55 Node** and real Chrome, zero failures. The next documentation-only qualification commit must pass identical checks before merge. v0.1.4 main is accepted baseline until PR promotion.
-- **Scope:** Moldvay Basic B23 encounter order, non-resolving stage transition via strict `encounter.handoff` after adjudicated perception. Already established player sightings and own-side surprise survive handoff/serialization. No time, RNG, torch, HP, monster fate, XP, initiative, reactions, combat or private client secrets. Schema v6 migrates v1–v5 saves exactly, including visibility.
-- **Next action:** qualify and merge PR #11 only after both jobs pass; verify exact merged-main Node/Chrome and Pages. Perform separately tested documentation-only acceptance closeout. Do not begin v0.1.6 in this session.
+- **v0.1.5 FULLY ACCEPTED on main:** PR #11 merged at `55b711b78e6194b62e024791787836aab41ca9a0`. Exact validated feature/test head `be7e92308c1eb4871a8d925de2b9f983ffd2b0e8`: **55/55 Node + real Chrome** on Actions `40331496756`. Qualified audit/pipeline head `b2a252c0a98d6d6ef7741ca2dc680bb9ded168c8` passed `40331772598`. Exact merged-main Node/Chrome `40331888006` and Pages `40331887271` passed. Acceptance closeout modifies documentation only.
+- **Accepted scope:** narrow, non-resolving encounter transition `encounter.handoff` after public perception; stage becomes `awaiting-referee-continuation` and existing established player sighting/party surprise stays constant across turn-blocked handoff and save/load. No new dice, elapsed time, torch, combat, monster outcome, XP, AI or private-world authority. Schema v6 migrates exact v1–v5 saves.
+- **Next prescribed checkpoint:** v0.1.6 — source-validated encounter disposition/return-to-exploration authority boundary, never manufacture outcomes. Recover newest accepted main, preserve rule/source hierarchy, scope one testable slice only.
 - **Future next checkpoint:** v0.1.6 — source-validated encounter disposition and safe return-to-exploration authority, no fabricated wins or unresolved monster disappearance. Preserve strict isolation.
 
 
