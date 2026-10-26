@@ -43,6 +43,6 @@ try {
   const perception=await dumpPage('tests/perception-browser-probe.html');
   if(!perception.includes('data-smoke-status="passed"') ||
     !perception.includes('Perception visibility, narration, persistence and refusals passed.'))
-    throw Error(`Perception browser smoke failed: report=${perception.match(/<pre id="result">([\\s\\S]*?)<\\/pre>/)?.[1]}; first=${perception.slice(0,700)}`);
+    throw Error(`Perception browser smoke failed: ${perception.slice(0,1600)}`);
   console.log('Browser smoke passed: boot, encounters, surprise, perception, visibility, save/load, refusals.');
 } finally {server.kill();}
