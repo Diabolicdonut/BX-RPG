@@ -8,6 +8,8 @@ export function parseLocalIntent(text,baseRevision) {
   const diagnostic=parseLocalDiagnostic(text,baseRevision);
   if (diagnostic) return diagnostic;
   if (typeof text!=='string') return null;
+  if (text.trim().toLowerCase()==='assess encounter visibility')
+    return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.perceive'}]};
   if (text.trim().toLowerCase()==='adjudicate surprise')
     return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.surprise'}]};
   if (text.trim().toLowerCase()==='establish pending encounter')
@@ -21,6 +23,14 @@ export function narrateAuthoritativeResult(result) {
   if (!result.accepted) return `Action declined: ${result.error}. State unchanged.`;
   const outcome=result.outcomes[0];
   if(outcome.kind==='diagnostic.roll') return `Diagnostic d6: ${outcome.value}. This is not a B/X game action.`;
+  if(outcome.kind==='encounter.perception') {
+    const sight=outcome.visibility;
+    if(sight.presence!=='visible')
+      return 'No creature is confirmed visible from the established evidence. This does not establish that none is present.';
+    return sight.identity==='goblin' ?
+      'A goblin is visible within torchlight; its exact distance and the full group size are unestablished.' :
+      'A creature is visible within torchlight; its identity and exact distance are unestablished.';
+  }
   if(outcome.kind==='encounter.surprise')
     return outcome.partySurprised ?
       'The party is caught off guard. What is present and visible has not yet been established.' :

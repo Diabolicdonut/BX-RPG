@@ -26,7 +26,7 @@ try {
   await delay(350);
   const boot=await dumpPage('');
   if(!boot.includes('data-boot-status="ready"') ||
-    !boot.includes('B/X surprise boundary ready.') ||
+    !boot.includes('B/X perception boundary ready.') ||
     !boot.includes('Sample Fighter') || !boot.includes('4/4') ||
     !boot.includes('6 turns remaining'))throw Error(`Browser boot smoke failed: ${boot.slice(-1200)}`);
   const probe=await dumpPage('tests/browser-probe.html');
@@ -40,5 +40,9 @@ try {
   if(!surprise.includes('data-smoke-status="passed"') ||
     !surprise.includes('Surprise, visibility, replay, save/load, and refusals passed.'))
     throw Error(`Surprise browser smoke failed: status=${surprise.match(/data-smoke-status="([^"]+)"/)?.[1]}; report=${surprise.match(/<pre id="result">([\s\S]*?)<\/pre>/)?.[1]}; leading=${surprise.slice(0,800)}`);
-  console.log('Browser smoke passed: boot, rest/time/light, encounter contact, surprise, public visibility, save/load, refusals.');
+  const perception=await dumpPage('tests/perception-browser-probe.html');
+  if(!perception.includes('data-smoke-status="passed"') ||
+    !perception.includes('Perception visibility, narration, persistence and refusals passed.'))
+    throw Error(`Perception browser smoke failed: report=${perception.match(/<pre id="result">([\\s\\S]*?)<\\/pre>/)?.[1]}; first=${perception.slice(0,700)}`);
+  console.log('Browser smoke passed: boot, encounters, surprise, perception, visibility, save/load, refusals.');
 } finally {server.kill();}

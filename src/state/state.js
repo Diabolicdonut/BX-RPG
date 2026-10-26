@@ -3,8 +3,10 @@ import {RULESET} from '../rules/scope.js';
 import {rollDie} from './rng.js';
 import {validateEncounterPacket} from '../rules/encounter-data.js';
 import {levelOneGoblinContact} from '../content/encounters/level1-goblin.js';
+import {clearRecognized,knownPerceptionEvidence} from '../content/encounters/public-perception.js';
+import {validatePerceptionEvidence,derivePublicVisibility} from '../rules/perception-evidence.js';
 
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 const own = (o,k) => Object.prototype.hasOwnProperty.call(o,k);
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const exact = (v, keys) => object(v) && Object.keys(v).length === keys.length && keys.every(k=>own(v,k));
@@ -56,18 +58,27 @@ function validRest(e,s) {
     Number.isInteger(e.lightRemaining) && e.lightRemaining>=0 && e.lightRemaining<=6 &&
     typeof e.torchExpired==='boolean';
 }
+const visibilityKeys=['presence','identity','distance'];
+function sameVisibility(a,b){
+  return exact(a,visibilityKeys)&&visibilityKeys.every(k=>a[k]===b[k]);
+}
 function validContact(e,s){
-  return exact(e,['kind','dueTurn','packetId','monster','numberAppearing','distanceFeet','stage','surprise','visibility']) &&
+  return exact(e,['kind','dueTurn','packetId','monster','numberAppearing','distanceFeet','stage','surprise','visibility','evidenceId']) &&
     e.kind==='wandering-contact' && e.dueTurn===s.turns+1 && s.turns>0 &&
     s.turns%2===0 && e.packetId===levelOneGoblinContact.id &&
     e.monster==='goblin' && Number.isSafeInteger(e.numberAppearing) &&
     e.numberAppearing>=2 && e.numberAppearing<=8 &&
     Number.isSafeInteger(e.distanceFeet) && e.distanceFeet>=20 &&
     e.distanceFeet<=120 && e.distanceFeet%10===0 &&
-    exact(e.visibility,['presence','identity','distance']) &&
-    Object.values(e.visibility).every(value=>value==='unestablished') &&
-    ((e.stage==='awaiting-encounter-adjudication' && e.surprise===null) ||
-      (e.stage==='surprise-adjudicated' && validSurprise(e.surprise)));
+    exact(e.visibility,visibilityKeys) &&
+    ((e.stage==='awaiting-encounter-adjudication' && e.surprise===null &&
+      e.evidenceId===null && sameVisibility(e.visibility,unestablishedVisibility())) ||
+     (e.stage==='surprise-adjudicated' && validSurprise(e.surprise) &&
+      e.evidenceId===null && sameVisibility(e.visibility,unestablishedVisibility())) ||
+     (e.stage==='perception-adjudicated' && validSurprise(e.surprise) &&
+      typeof e.evidenceId==='string' && knownPerceptionEvidence(e.evidenceId)!==null &&
+      sameVisibility(e.visibility,derivePublicVisibility(
+        knownPerceptionEvidence(e.evidenceId),s.light,e.distanceFeet))));
 }
 function validContactRecord(e,s){
   return exact(e,['kind','dueTurn']) && e.kind==='encounter.contact' &&
@@ -77,9 +88,13 @@ function validSurpriseRecord(e,s) {
   return exact(e,['kind','dueTurn']) && e.kind==='encounter.surprise' &&
     Number.isSafeInteger(e.dueTurn) && e.dueTurn>=1 && e.dueTurn<=s.turns+1;
 }
+function validPerceptionRecord(e,s) {
+  return exact(e,['kind','dueTurn']) && e.kind==='encounter.perception' &&
+    Number.isSafeInteger(e.dueTurn) && e.dueTurn>=1 && e.dueTurn<=s.turns+1;
+}
 export function assertValidState(state) {
   if (!exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter']) || state.schemaVersion!==SCHEMA_VERSION ||
-    !validShared(state) || !state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state)||validSurpriseRecord(e,state)) ||
+    !validShared(state) || !state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state)||validSurpriseRecord(e,state)||validPerceptionRecord(e,state)) ||
     !exact(state.light,['kind','remainingTurns']) ||
     !['torch','none'].includes(state.light.kind) ||
     !Number.isInteger(state.light.remainingTurns) || state.light.remainingTurns<0 ||
@@ -98,6 +113,15 @@ export function assertValidState(state) {
 // Exact historical save migrations: no new dice rolls, visibility, or resources.
 export function migrateSaveState(state) {
   if(state?.schemaVersion===SCHEMA_VERSION)return assertValidState(state);
+  if(exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter']) && state.schemaVersion===4 &&
+    validShared(state) &&
+    state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state)||validSurpriseRecord(e,state))) {
+    if(state.activeEncounter!==null && !exact(state.activeEncounter,
+      ['kind','dueTurn','packetId','monster','numberAppearing','distanceFeet','stage','surprise','visibility']))
+      throw Error('Invalid v4 contact envelope');
+    const activeEncounter=state.activeEncounter===null?null:{...state.activeEncounter,evidenceId:null};
+    return assertValidState({...state,schemaVersion:SCHEMA_VERSION,activeEncounter});
+  }
   if(exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter']) && state.schemaVersion===3 &&
     validShared(state) &&
     state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state))) {
@@ -106,7 +130,7 @@ export function migrateSaveState(state) {
         'numberAppearing','distanceFeet','stage']))
       throw Error('Invalid v3 encounter envelope');
     const contact=state.activeEncounter===null ? null : {
-      ...state.activeEncounter,surprise:null,visibility:unestablishedVisibility()
+      ...state.activeEncounter,surprise:null,visibility:unestablishedVisibility(),evidenceId:null
     };
     return assertValidState({...state,schemaVersion:SCHEMA_VERSION,activeEncounter:contact});
   }
@@ -129,9 +153,11 @@ function validProposal(state,p) {
   if (exact(op,['kind']) && op.kind==='dungeon.rest') return 'dungeon.rest';
   if (exact(op,['kind']) && op.kind==='encounter.establish') return 'encounter.establish';
   if (exact(op,['kind']) && op.kind==='encounter.surprise') return 'encounter.surprise';
+  if (exact(op,['kind']) && op.kind==='encounter.perceive') return 'encounter.perceive';
   return null;
 }
-export function executeProposal(state,proposal,encounterPacket=levelOneGoblinContact) {
+export function executeProposal(state,proposal,encounterPacket=levelOneGoblinContact,
+  perceptionEvidence=clearRecognized) {
   assertValidState(state);
   const kind=validProposal(state,proposal);
   if (!kind) return {accepted:false,state,outcomes:[],error:'Unsupported or stale proposal'};
@@ -160,7 +186,7 @@ export function executeProposal(state,proposal,encounterPacket=levelOneGoblinCon
       numberAppearing:encounterPacket.numberAppearing,
       distanceFeet:(first.value+second.value)*10,
       stage:'awaiting-encounter-adjudication',surprise:null,
-      visibility:unestablishedVisibility()};
+      visibility:unestablishedVisibility(),evidenceId:null};
     // The clock and torch do not advance until the encounter is played.
     // Neither monster nor distance appears in the narration-only outcome.
     const next={...state,revision:state.revision+1,rng:second.rng,
@@ -198,6 +224,33 @@ export function executeProposal(state,proposal,encounterPacket=levelOneGoblinCon
     // separation, and all unestablished perception remain undisclosed.
     return {accepted:true,state:next,outcomes:[{kind:'encounter.surprise',
       partySurprised,perception:'unestablished'}]};
+  }
+  if(kind==='encounter.perceive') {
+    const active=state.activeEncounter;
+    if(!active || active.stage!=='surprise-adjudicated' ||
+      active.evidenceId!==null)
+      return {accepted:false,state,outcomes:[],error:'No contact awaiting perception evidence'};
+    let evidence;
+    try {
+      validateEncounterPacket(encounterPacket);
+      evidence=validatePerceptionEvidence(perceptionEvidence);
+      if(active.packetId!==encounterPacket.id ||
+        active.monster!==encounterPacket.monster ||
+        active.numberAppearing!==encounterPacket.numberAppearing ||
+        evidence.contactId!==active.packetId)
+        throw Error('Fixture does not match contact');
+    } catch {
+      return {accepted:false,state,outcomes:[],error:'Unsupported perception evidence'};
+    }
+    const visibility=derivePublicVisibility(evidence,state.light,active.distanceFeet);
+    const next={...state,revision:state.revision+1,
+      activeEncounter:{...active,stage:'perception-adjudicated',
+        evidenceId:evidence.id,visibility:{...visibility}},
+      journal:[...state.journal,{kind:'encounter.perception',dueTurn:active.dueTurn}].slice(-20)};
+    assertValidState(next);
+    // Only justified player-visible knowledge crosses the narration boundary.
+    return {accepted:true,state:next,outcomes:[{kind:'encounter.perception',
+      visibility:{...visibility}}]};
   }
   // Moldvay B19, B21, B53: rest is one ten-minute turn; a lit torch burns
   // one turn; wandering check at the end of each second exploration turn.

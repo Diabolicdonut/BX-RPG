@@ -101,7 +101,7 @@ test('exact v3 active contact and pending saves migrate without inventing surpri
   for(const seed of [1,13]) {
     const s=contact(seed);
     const old={...s,schemaVersion:3,
-      activeEncounter:((({surprise,visibility,...retained})=>retained)(s.activeEncounter))};
+      activeEncounter:((({surprise,visibility,evidenceId,...retained})=>retained)(s.activeEncounter))};
     const migrated=decodeSave(JSON.stringify(old));
     assert.equal(migrated.schemaVersion,SCHEMA_VERSION);
     assert.equal(migrated.activeEncounter.surprise,null);
