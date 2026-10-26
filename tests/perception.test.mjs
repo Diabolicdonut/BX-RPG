@@ -116,7 +116,7 @@ test('player-visible encounter result cannot expose unestablished distance, coun
 test('v4 contact and surprise migrate exactly to v5 with no inferred perception, RNG or light',()=>{
   const state=prepare(61);
   const {evidenceId,...oldActive}=state.activeEncounter;
-  const v4={...state,schemaVersion:4,activeEncounter:oldActive};
+  const {lastEncounter,...v4State}=state;const v4={...v4State,schemaVersion:4,activeEncounter:oldActive};
   const migrated=decodeSave(JSON.stringify(v4));
   assert.equal(migrated.schemaVersion,SCHEMA_VERSION);
   assert.equal(migrated.activeEncounter.evidenceId,null);
