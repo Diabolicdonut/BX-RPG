@@ -23,7 +23,7 @@ test('offline exact-phrase parser bridges player prose to one typed turn, not ar
 });
 test('one B/X rest turn advances 10 minutes, uses one torch turn, no random draw',()=>{
   const original=createDemoState(123),result=successful(original);
-  assert.equal(result.state.schemaVersion,5);
+  assert.equal(result.state.schemaVersion,SCHEMA_VERSION);
   assert.equal(result.state.turns,1);assert.equal(result.state.revision,1);
   assert.deepEqual(result.state.light,{kind:'torch',remainingTurns:5});
   assert.equal(result.state.rng.draws,0);
