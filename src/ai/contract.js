@@ -8,6 +8,8 @@ export function parseLocalIntent(text,baseRevision) {
   const diagnostic=parseLocalDiagnostic(text,baseRevision);
   if (diagnostic) return diagnostic;
   if (typeof text!=='string') return null;
+  if (text.trim().toLowerCase()==='resolve public demo monster withdrawal')
+    return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.conclude.monster-withdrawal'}]};
   if (text.trim().toLowerCase()==='resolve public demo nonpursuit')
     return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.conclude'}]};
   if (text.trim().toLowerCase()==='handoff encounter')
@@ -32,7 +34,9 @@ export function narrateAuthoritativeResult(result) {
       outcome.torchExpired ? 'The torch burns out.' :
       outcome.lightRemaining===0 ? 'The torch is out.' :
       `The torch has ${outcome.lightRemaining} turns remaining.`;
-    return `The party withdraws; the creatures do not pursue. The encounter ends. Dungeon turn ${outcome.turn}. ${light}`;
+    return outcome.disposition==='monsters-withdrew-unpursued'
+      ? `The creatures withdraw; the party does not pursue. The encounter ends. Dungeon turn ${outcome.turn}. ${light}`
+      : `The party withdraws; the creatures do not pursue. The encounter ends. Dungeon turn ${outcome.turn}. ${light}`;
   }
   if(outcome.kind==='encounter.handoff') {
     const knowledge=outcome.knowledge.visibility;

@@ -6,10 +6,10 @@ import {levelOneGoblinContact} from '../content/encounters/level1-goblin.js';
 import {clearRecognized,knownPerceptionEvidence} from '../content/encounters/public-perception.js';
 import {validatePerceptionEvidence,derivePublicVisibility} from '../rules/perception-evidence.js';
 import {projectPlayerEncounterKnowledge} from './player-knowledge.js';
-import {unpursuedWithdrawal} from '../content/encounters/public-disposition.js';
-import {validateDispositionEvidence} from '../rules/disposition-evidence.js';
+import {unpursuedWithdrawal,monsterWithdrawalUnpursued} from '../content/encounters/public-disposition.js';
+import {validateDispositionEvidence,dispositionForEvidenceId} from '../rules/disposition-evidence.js';
 
-export const SCHEMA_VERSION = 7;
+export const SCHEMA_VERSION = 8;
 const own = (o,k) => Object.prototype.hasOwnProperty.call(o,k);
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const exact = (v, keys) => object(v) && Object.keys(v).length === keys.length && keys.every(k=>own(v,k));
@@ -86,8 +86,7 @@ function validContact(e,s){
 function validLastEncounter(e,s) {
   if(!exact(e,['kind','disposition','closedTurn','lightBefore','contact','sourceId']) ||
     e.kind!=='concluded-wandering' ||
-    e.disposition!=='party-withdrew-unpursued' ||
-    e.sourceId!==unpursuedWithdrawal.id ||
+    e.disposition!==dispositionForEvidenceId(e.sourceId) ||
     !Number.isSafeInteger(e.closedTurn) ||
     e.closedTurn<3 || e.closedTurn>s.turns ||
     !exact(e.lightBefore,['kind','remainingTurns']) ||
@@ -103,7 +102,8 @@ function validLastEncounter(e,s) {
 function validCloseRecord(e,s){
   return exact(e,['kind','turn','disposition']) &&
     e.kind==='encounter.closed' &&
-    e.disposition==='party-withdrew-unpursued' &&
+    (e.disposition==='party-withdrew-unpursued' ||
+     e.disposition==='monsters-withdrew-unpursued') &&
     Number.isSafeInteger(e.turn) && e.turn>=1 && e.turn<=s.turns;
 }
 function validContactRecord(e,s){
@@ -144,6 +144,17 @@ export function assertValidState(state) {
 // Exact historical save migrations: no new dice rolls, visibility, or resources.
 export function migrateSaveState(state) {
   if(state?.schemaVersion===SCHEMA_VERSION)return assertValidState(state);
+  if(exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter','lastEncounter']) &&
+    state.schemaVersion===7 && validShared(state) &&
+    state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state)||
+      validSurpriseRecord(e,state)||validPerceptionRecord(e,state)||validHandoffRecord(e,state)||
+      (validCloseRecord(e,state)&&e.disposition==='party-withdrew-unpursued')) &&
+    (state.lastEncounter===null ||
+      (state.lastEncounter.sourceId===unpursuedWithdrawal.id &&
+       state.lastEncounter.disposition==='party-withdrew-unpursued'))) {
+    // Historical v7 saves cannot assert a v8-only monster-withdrawal fact.
+    return assertValidState({...state,schemaVersion:SCHEMA_VERSION});
+  }
   if(exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter']) && state.schemaVersion===6 &&
     validShared(state) && state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||
       validContactRecord(e,state)||validSurpriseRecord(e,state)||
@@ -209,10 +220,11 @@ function validProposal(state,p) {
   if (exact(op,['kind']) && op.kind==='encounter.perceive') return 'encounter.perceive';
   if (exact(op,['kind']) && op.kind==='encounter.handoff') return 'encounter.handoff';
   if (exact(op,['kind']) && op.kind==='encounter.conclude') return 'encounter.conclude';
+  if (exact(op,['kind']) && op.kind==='encounter.conclude.monster-withdrawal') return 'encounter.conclude.monster-withdrawal';
   return null;
 }
 export function executeProposal(state,proposal,encounterPacket=levelOneGoblinContact,
-  perceptionEvidence=clearRecognized, dispositionEvidence=unpursuedWithdrawal) {
+  perceptionEvidence=clearRecognized, dispositionEvidence=undefined) {
   assertValidState(state);
   const kind=validProposal(state,proposal);
   if (!kind) return {accepted:false,state,outcomes:[],error:'Unsupported or stale proposal'};
@@ -323,7 +335,7 @@ export function executeProposal(state,proposal,encounterPacket=levelOneGoblinCon
       stage:'awaiting-referee'
     }]};
   }
-  if(kind==='encounter.conclude') {
+  if(kind==='encounter.conclude' || kind==='encounter.conclude.monster-withdrawal') {
     // Only this independently authored PUBLIC demo disposition is supported.
     // Basic B23: if the party withdraws and monsters do not pursue, the
     // encounter ends. <=60 rounds counts as one dungeon turn (B23).
@@ -333,7 +345,13 @@ export function executeProposal(state,proposal,encounterPacket=levelOneGoblinCon
     let evidence;
     try {
       validateEncounterPacket(encounterPacket);
-      evidence=validateDispositionEvidence(dispositionEvidence);
+      const requestedEvidence=dispositionEvidence===undefined ?
+        (kind==='encounter.conclude.monster-withdrawal' ?
+          monsterWithdrawalUnpursued : unpursuedWithdrawal) : dispositionEvidence;
+      evidence=validateDispositionEvidence(requestedEvidence);
+      const expectedId=kind==='encounter.conclude.monster-withdrawal' ?
+        monsterWithdrawalUnpursued.id : unpursuedWithdrawal.id;
+      if(evidence.id!==expectedId)throw Error('Disposition operation and evidence mismatch');
       if(contact.packetId!==encounterPacket.id ||
         contact.monster!==encounterPacket.monster ||
         contact.numberAppearing!==encounterPacket.numberAppearing ||
@@ -348,18 +366,18 @@ export function executeProposal(state,proposal,encounterPacket=levelOneGoblinCon
     const light={kind:state.light.kind,remainingTurns:remaining};
     const knowledge=projectPlayerEncounterKnowledge(state);
     const lastEncounter={
-      kind:'concluded-wandering',disposition:'party-withdrew-unpursued',
+      kind:'concluded-wandering',disposition:dispositionForEvidenceId(evidence.id),
       closedTurn:turn,lightBefore,contact,sourceId:evidence.id
     };
     const next={...state,revision:state.revision+1,turns:turn,light,
       activeEncounter:null,lastEncounter,
       journal:[...state.journal,{kind:'encounter.closed',turn,
-        disposition:'party-withdrew-unpursued'}].slice(-20)};
+        disposition:dispositionForEvidenceId(evidence.id)}].slice(-20)};
     // Existing due-turn timing guarantees the conclusion is an odd turn.
     // No wandering roll is owed on this turn; later turns retain B53 rules.
     assertValidState(next);
     return {accepted:true,state:next,outcomes:[{
-      kind:'encounter.closed',turn,disposition:'party-withdrew-unpursued',
+      kind:'encounter.closed',turn,disposition:dispositionForEvidenceId(evidence.id),
       lightKind:light.kind,lightRemaining:remaining,
       torchExpired:state.light.kind==='torch'&&state.light.remainingTurns===1,
       knowledge
