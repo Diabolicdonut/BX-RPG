@@ -1,5 +1,12 @@
 # Acceptance audit (newest first)
 
+## v0.1.4 — CANDIDATE, NOT YET ACCEPTED — conditional encounter perception
+
+Scope: Moldvay Basic p. B21 (30-foot torch illumination) and p. B23 (referee contextual sight/distance). Explicit public authored corridor evidence is validated separately from existing B53 public goblin contact. `encounter.perceive` accepts only the already surprise-adjudicated contact, preserves RNG/time/light, and discloses only justified visible presence, independently recognized identity, and qualitative within-torchlight proximity; otherwise all facts remain unestablished. Schema v5 preserves exact earlier saves including v4. No maps, monster AI, initiative, reactions, combat, private data or live AI. Known World untouched.
+
+Status: candidate PR #9. Initial CI `40327187694` ran **45/45 Node tests successfully**, but the Chrome runner stopped on a syntax error in the **new browser diagnostic**, before any browser test executed. Diagnostic fixed in candidate `c9d3de393dbbbeb569f47cba778f131c626a1ca1`. **Acceptance still requires a new exact-head run with both jobs green.** Never merge failing or unverified code. Recovery: rerun latest candidate CI, correct any failures, then commit accepted audit/pipeline and verify exact-main CI and Pages. Exact next checkpoint after acceptance: **v0.1.5 — minimal encounter transition/knowledge continuity boundary**, no reactions/initiative/combat until separately authorized.
+
+
 ## v0.1.3 — FULLY ACCEPTED — surprise and visibility boundary
 
 Source: original Moldvay Basic **B23**, unmodified d6 per side, surprise on 1–2, both/one/neither cases and mutual cancellation. Only the B53/B23 public goblin contact is eligible; engine saves exact seeded rolls and four-case disposition, maintains independent `visibility` attributes as `unestablished`, and narrates only the party's own surprised status. No time/light/contact distance changes, initiative, reaction, combat or secure hidden-world claims. Schema v4 migrates validated v1/v2/v3 without assumptions; unknown, stale, duplicate, tampered and malformed packets fail before RNG use. **AI disconnected; Known World untouched.**
