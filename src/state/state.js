@@ -6,8 +6,10 @@ import {levelOneGoblinContact} from '../content/encounters/level1-goblin.js';
 import {clearRecognized,knownPerceptionEvidence} from '../content/encounters/public-perception.js';
 import {validatePerceptionEvidence,derivePublicVisibility} from '../rules/perception-evidence.js';
 import {projectPlayerEncounterKnowledge} from './player-knowledge.js';
+import {unpursuedWithdrawal} from '../content/encounters/public-disposition.js';
+import {validateDispositionEvidence} from '../rules/disposition-evidence.js';
 
-export const SCHEMA_VERSION = 6;
+export const SCHEMA_VERSION = 7;
 const own = (o,k) => Object.prototype.hasOwnProperty.call(o,k);
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const exact = (v, keys) => object(v) && Object.keys(v).length === keys.length && keys.every(k=>own(v,k));
@@ -35,7 +37,7 @@ export function createDemoState(seed = 0x19811011) {
   if (!Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) throw Error('Invalid seed');
   return {schemaVersion:SCHEMA_VERSION,ruleset:RULESET,revision:0,
     character:sampleCharacter(),turns:0,rng:{state:seed>>>0,draws:0},journal:[],
-    light:{kind:'torch',remainingTurns:6},pendingEncounter:null,activeEncounter:null};
+    light:{kind:'torch',remainingTurns:6},pendingEncounter:null,activeEncounter:null,lastEncounter:null};
 }
 
 function validShared(s) {
@@ -81,6 +83,29 @@ function validContact(e,s){
       sameVisibility(e.visibility,derivePublicVisibility(
         knownPerceptionEvidence(e.evidenceId),s.light,e.distanceFeet))));
 }
+function validLastEncounter(e,s) {
+  if(!exact(e,['kind','disposition','closedTurn','lightBefore','contact','sourceId']) ||
+    e.kind!=='concluded-wandering' ||
+    e.disposition!=='party-withdrew-unpursued' ||
+    e.sourceId!==unpursuedWithdrawal.id ||
+    !Number.isSafeInteger(e.closedTurn) ||
+    e.closedTurn<3 || e.closedTurn>s.turns ||
+    !exact(e.lightBefore,['kind','remainingTurns']) ||
+    !['torch','none'].includes(e.lightBefore.kind) ||
+    !Number.isSafeInteger(e.lightBefore.remainingTurns) ||
+    e.lightBefore.remainingTurns<0 || e.lightBefore.remainingTurns>6 ||
+    (e.lightBefore.kind==='none' && e.lightBefore.remainingTurns!==0) ||
+    e.contact?.stage!=='awaiting-referee-continuation' ||
+    e.contact?.dueTurn!==e.closedTurn)
+    return false;
+  return validContact(e.contact,{...s,turns:e.closedTurn-1,light:e.lightBefore});
+}
+function validCloseRecord(e,s){
+  return exact(e,['kind','turn','disposition']) &&
+    e.kind==='encounter.closed' &&
+    e.disposition==='party-withdrew-unpursued' &&
+    Number.isSafeInteger(e.turn) && e.turn>=1 && e.turn<=s.turns;
+}
 function validContactRecord(e,s){
   return exact(e,['kind','dueTurn']) && e.kind==='encounter.contact' &&
     Number.isSafeInteger(e.dueTurn) && e.dueTurn>=1 && e.dueTurn<=s.turns+1;
@@ -98,8 +123,8 @@ function validPerceptionRecord(e,s) {
     Number.isSafeInteger(e.dueTurn) && e.dueTurn>=1 && e.dueTurn<=s.turns+1;
 }
 export function assertValidState(state) {
-  if (!exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter']) || state.schemaVersion!==SCHEMA_VERSION ||
-    !validShared(state) || !state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state)||validSurpriseRecord(e,state)||validPerceptionRecord(e,state)||validHandoffRecord(e,state)) ||
+  if (!exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter','lastEncounter']) || state.schemaVersion!==SCHEMA_VERSION ||
+    !validShared(state) || !state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state)||validSurpriseRecord(e,state)||validPerceptionRecord(e,state)||validHandoffRecord(e,state)||validCloseRecord(e,state)) ||
     !exact(state.light,['kind','remainingTurns']) ||
     !['torch','none'].includes(state.light.kind) ||
     !Number.isInteger(state.light.remainingTurns) || state.light.remainingTurns<0 ||
@@ -110,7 +135,8 @@ export function assertValidState(state) {
       state.turns>0 && state.turns%2===0 &&
       state.pendingEncounter.dueTurn===state.turns+1)) ||
     !(state.activeEncounter===null||validContact(state.activeEncounter,state)) ||
-    (state.pendingEncounter!==null && state.activeEncounter!==null))
+    (state.pendingEncounter!==null && state.activeEncounter!==null) ||
+    !(state.lastEncounter===null || validLastEncounter(state.lastEncounter,state)))
     throw Error('Invalid or unsupported B/X demo save');
   return state;
 }
@@ -118,6 +144,16 @@ export function assertValidState(state) {
 // Exact historical save migrations: no new dice rolls, visibility, or resources.
 export function migrateSaveState(state) {
   if(state?.schemaVersion===SCHEMA_VERSION)return assertValidState(state);
+  if(exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter']) && state.schemaVersion===6 &&
+    validShared(state) && state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||
+      validContactRecord(e,state)||validSurpriseRecord(e,state)||
+      validPerceptionRecord(e,state)||validHandoffRecord(e,state))) {
+    if(state.activeEncounter!==null&&!exact(state.activeEncounter,
+      ['kind','dueTurn','packetId','monster','numberAppearing','distanceFeet',
+       'stage','surprise','visibility','evidenceId']))
+      throw Error('Invalid v6 encounter envelope');
+    return assertValidState({...state,schemaVersion:SCHEMA_VERSION,lastEncounter:null});
+  }
   if(exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter']) && state.schemaVersion===5 &&
     validShared(state) && state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||
       validContactRecord(e,state)||validSurpriseRecord(e,state)||validPerceptionRecord(e,state))) {
@@ -128,7 +164,7 @@ export function migrateSaveState(state) {
       !exact(state.activeEncounter,['kind','dueTurn','packetId','monster',
         'numberAppearing','distanceFeet','stage','surprise','visibility','evidenceId'])))
       throw Error('Invalid v5 contact envelope');
-    return assertValidState({...state,schemaVersion:SCHEMA_VERSION});
+    return assertValidState({...state,schemaVersion:SCHEMA_VERSION,lastEncounter:null});
   }
   if(exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter']) && state.schemaVersion===4 &&
     validShared(state) &&
@@ -137,7 +173,7 @@ export function migrateSaveState(state) {
       ['kind','dueTurn','packetId','monster','numberAppearing','distanceFeet','stage','surprise','visibility']))
       throw Error('Invalid v4 contact envelope');
     const activeEncounter=state.activeEncounter===null?null:{...state.activeEncounter,evidenceId:null};
-    return assertValidState({...state,schemaVersion:SCHEMA_VERSION,activeEncounter});
+    return assertValidState({...state,schemaVersion:SCHEMA_VERSION,activeEncounter,lastEncounter:null});
   }
   if(exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter']) && state.schemaVersion===3 &&
     validShared(state) &&
@@ -149,16 +185,16 @@ export function migrateSaveState(state) {
     const contact=state.activeEncounter===null ? null : {
       ...state.activeEncounter,surprise:null,visibility:unestablishedVisibility(),evidenceId:null
     };
-    return assertValidState({...state,schemaVersion:SCHEMA_VERSION,activeEncounter:contact});
+    return assertValidState({...state,schemaVersion:SCHEMA_VERSION,activeEncounter:contact,lastEncounter:null});
   }
   if(exact(state,[...initialKeys,'light','pendingEncounter']) && state.schemaVersion===2 &&
     validShared(state) && state.journal.every(e=>validDiagnostic(e)||validRest(e,state))) {
-    return assertValidState({...state,schemaVersion:SCHEMA_VERSION,activeEncounter:null});
+    return assertValidState({...state,schemaVersion:SCHEMA_VERSION,activeEncounter:null,lastEncounter:null});
   }
   if(!exact(state,initialKeys) || state.schemaVersion!==1 || !validShared(state) ||
     !state.journal.every(validDiagnostic)) throw Error('Invalid or unsupported B/X demo save');
   return assertValidState({...state,schemaVersion:SCHEMA_VERSION,
-    light:{kind:'none',remainingTurns:0},pendingEncounter:null,activeEncounter:null});
+    light:{kind:'none',remainingTurns:0},pendingEncounter:null,activeEncounter:null,lastEncounter:null});
 }
 
 function validProposal(state,p) {
@@ -172,10 +208,11 @@ function validProposal(state,p) {
   if (exact(op,['kind']) && op.kind==='encounter.surprise') return 'encounter.surprise';
   if (exact(op,['kind']) && op.kind==='encounter.perceive') return 'encounter.perceive';
   if (exact(op,['kind']) && op.kind==='encounter.handoff') return 'encounter.handoff';
+  if (exact(op,['kind']) && op.kind==='encounter.conclude') return 'encounter.conclude';
   return null;
 }
 export function executeProposal(state,proposal,encounterPacket=levelOneGoblinContact,
-  perceptionEvidence=clearRecognized) {
+  perceptionEvidence=clearRecognized, dispositionEvidence=unpursuedWithdrawal) {
   assertValidState(state);
   const kind=validProposal(state,proposal);
   if (!kind) return {accepted:false,state,outcomes:[],error:'Unsupported or stale proposal'};
@@ -284,6 +321,48 @@ export function executeProposal(state,proposal,encounterPacket=levelOneGoblinCon
       kind:'encounter.handoff',
       knowledge:projectPlayerEncounterKnowledge(next),
       stage:'awaiting-referee'
+    }]};
+  }
+  if(kind==='encounter.conclude') {
+    // Only this independently authored PUBLIC demo disposition is supported.
+    // Basic B23: if the party withdraws and monsters do not pursue, the
+    // encounter ends. <=60 rounds counts as one dungeon turn (B23).
+    const contact=state.activeEncounter;
+    if(!contact || contact.stage!=='awaiting-referee-continuation')
+      return {accepted:false,state,outcomes:[],error:'No referee-ready encounter to conclude'};
+    let evidence;
+    try {
+      validateEncounterPacket(encounterPacket);
+      evidence=validateDispositionEvidence(dispositionEvidence);
+      if(contact.packetId!==encounterPacket.id ||
+        contact.monster!==encounterPacket.monster ||
+        contact.numberAppearing!==encounterPacket.numberAppearing ||
+        evidence.contactId!==contact.packetId ||
+        contact.dueTurn!==state.turns+1)
+        throw Error('Disposition does not match active contact');
+    } catch {
+      return {accepted:false,state,outcomes:[],error:'Unsupported or unverified encounter disposition'};
+    }
+    const turn=state.turns+1,lightBefore={...state.light};
+    const remaining=state.light.kind==='torch'?Math.max(0,state.light.remainingTurns-1):0;
+    const light={kind:state.light.kind,remainingTurns:remaining};
+    const knowledge=projectPlayerEncounterKnowledge(state);
+    const lastEncounter={
+      kind:'concluded-wandering',disposition:'party-withdrew-unpursued',
+      closedTurn:turn,lightBefore,contact,sourceId:evidence.id
+    };
+    const next={...state,revision:state.revision+1,turns:turn,light,
+      activeEncounter:null,lastEncounter,
+      journal:[...state.journal,{kind:'encounter.closed',turn,
+        disposition:'party-withdrew-unpursued'}].slice(-20)};
+    // Existing due-turn timing guarantees the conclusion is an odd turn.
+    // No wandering roll is owed on this turn; later turns retain B53 rules.
+    assertValidState(next);
+    return {accepted:true,state:next,outcomes:[{
+      kind:'encounter.closed',turn,disposition:'party-withdrew-unpursued',
+      lightKind:light.kind,lightRemaining:remaining,
+      torchExpired:state.light.kind==='torch'&&state.light.remainingTurns===1,
+      knowledge
     }]};
   }
   // Moldvay B19, B21, B53: rest is one ten-minute turn; a lit torch burns
