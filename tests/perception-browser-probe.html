@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>v0.1.4 perception browser</title></head>
+<body data-smoke-status="pending"><iframe id="game" src="../index.html" title="B/X game"></iframe>
+<pre id="result">Waiting...</pre>
+<script type="module">
+import {createDemoState} from '../src/state/state.js';
+import {SAVE_KEY} from '../src/state/storage.js';
+const frame=document.getElementById('game');
+const mark=(status,message)=>{document.body.dataset.smokeStatus=status;document.getElementById('result').textContent=message;};
+let tried=false;
+const interval=setInterval(()=>{
+  const doc=frame.contentDocument;
+  if(tried||doc?.getElementById('app')?.dataset.bootStatus!=='ready')return;
+  tried=true;clearInterval(interval);
+  try{
+    const assert=(ok,message)=>{if(!ok)throw Error(message);};
+    const text=id=>doc.getElementById(id).textContent;
+    const send=phrase=>{doc.getElementById('command').value=phrase;
+      doc.getElementById('command-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));};
+    frame.contentWindow.localStorage.setItem(SAVE_KEY,JSON.stringify(createDemoState(61)));
+    doc.getElementById('load').click();
+    send('we rest for one turn');send('we rest for one turn');
+    send('establish pending encounter');send('adjudicate surprise');
+    assert(text('encounter')==='Surprise resolved · visibility unestablished','setup failed');
+    assert(text('draws')==='5','surprise RNG wrong');
+    send('assess encounter visibility');
+    assert(text('encounter')==='Goblin visible · within torchlight','valid visibility not shown');
+    assert(text('draws')==='5'&&text('turns')==='2'&&text('revision')==='5','perception changed time/RNG');
+    assert(text('light').includes('4 turns remaining'),'perception changed torch');
+    const message=doc.getElementById('log').textContent.toLowerCase();
+    assert(message.includes('goblin is visible')&&!message.includes('30 feet')&&
+      !message.includes('2 goblins')&&!message.includes('monsterroll'),'narration disclosure wrong');
+    doc.getElementById('save').click();
+    const saved=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
+    assert(saved.schemaVersion===5,'wrong save schema');
+    assert(saved.activeEncounter.visibility.identity==='goblin','known identity not saved');
+    assert(saved.activeEncounter.visibility.distance==='within-torchlight','qualitative range not saved');
+    doc.getElementById('reset').click();doc.getElementById('load').click();
+    assert(text('encounter')==='Goblin visible · within torchlight'&&text('draws')==='5','load failed');
+    send('assess encounter visibility');send('we rest for one turn');send('identify all monsters now');
+    assert(text('draws')==='5'&&text('turns')==='2'&&text('revision')==='5','refusal mutated saved state');
+    // Same fixed evidence cannot reveal goblins beyond 30-foot torchlight.
+    frame.contentWindow.localStorage.setItem(SAVE_KEY,JSON.stringify(createDemoState(1)));
+    doc.getElementById('load').click();
+    send('we rest for one turn');send('we rest for one turn');
+    send('establish pending encounter');send('adjudicate surprise');send('assess encounter visibility');
+    assert(text('encounter')==='Perception assessed · no confirmed sighting','distant encounter wrongly disclosed');
+    assert(!doc.getElementById('log').firstElementChild.textContent.toLowerCase().includes('goblin'),
+      'distant identity leaked through narration');
+    mark('passed','Perception visibility, narration, persistence and refusals passed.');
+  }catch(error){mark('failed',String(error.stack||error));}
+},30);
+setTimeout(()=>{if(!tried){clearInterval(interval);mark('failed','Game never booted');}},5000);
+</script></body></html>
