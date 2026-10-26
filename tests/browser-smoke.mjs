@@ -26,7 +26,7 @@ try {
   await delay(350);
   const boot=await dumpPage('');
   if(!boot.includes('data-boot-status="ready"') ||
-    !boot.includes('B/X disposition boundary ready.') ||
+    !boot.includes('B/X reciprocal disposition boundary ready.') ||
     !boot.includes('Sample Fighter') || !boot.includes('4/4') ||
     !boot.includes('6 turns remaining'))throw Error(`Browser boot smoke failed: ${boot.slice(-1200)}`);
   const probe=await dumpPage('tests/browser-probe.html');
@@ -52,6 +52,10 @@ try {
   if(!closed.includes('data-smoke-status="passed"') ||
     !closed.includes('Verified nonpursuit, turn accounting, knowledge and save/load passed.'))
     throw Error(`Disposition browser smoke failed: ${closed.slice(0,1400)}`);
-  console.log('Browser smoke passed: boot, exploration, encounter, surprise, perception, handoff, verified disposition, saves.');
+  const monsterWithdrawal=await dumpPage('tests/monster-withdrawal-browser-probe.html');
+  if(!monsterWithdrawal.includes('data-smoke-status="passed"') ||
+     !monsterWithdrawal.includes('Monster withdrawal, no pursuit, strict save and resumption passed.'))
+    throw Error(`Monster-withdrawal Chrome smoke failed: ${monsterWithdrawal.slice(0,1700)}`);
+  console.log('Browser smoke passed: boot, contact, surprise, sight, handoff, both public disposition cases and save/load.');
 
 } finally {server.kill();}
