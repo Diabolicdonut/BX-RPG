@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>B/X v0.1.5 knowledge handoff Chrome probe</title></head>
+<body data-smoke-status="pending"><iframe id="game" src="../index.html" title="B/X game"></iframe>
+<pre id="result">Waiting...</pre>
+<script type="module">
+import {createDemoState} from '../src/state/state.js';
+import {SAVE_KEY} from '../src/state/storage.js';
+const frame=document.getElementById('game');
+const mark=(status,text)=>{document.body.dataset.smokeStatus=status;document.getElementById('result').textContent=text;};
+let tried=false;const check=setInterval(()=>{
+  const doc=frame.contentDocument;
+  if(tried||doc?.getElementById('app')?.dataset.bootStatus!=='ready')return;
+  tried=true;clearInterval(check);
+  try{
+    const assert=(ok,msg)=>{if(!ok)throw Error(msg);};
+    const text=id=>doc.getElementById(id).textContent;
+    const send=phrase=>{doc.getElementById('command').value=phrase;
+      doc.getElementById('command-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));};
+    frame.contentWindow.localStorage.setItem(SAVE_KEY,JSON.stringify(createDemoState(61)));
+    doc.getElementById('load').click();
+    send('handoff encounter');
+    assert(text('revision')==='0','premature handoff accepted');
+    send('we rest for one turn');send('we rest for one turn');
+    send('establish pending encounter');send('adjudicate surprise');
+    send('assess encounter visibility');
+    assert(text('encounter')==='Goblin visible · within torchlight','sighting setup failed');
+    send('handoff encounter');
+    assert(text('encounter')==='Awaiting referee · Goblin visible within torchlight','sighting lost on handoff');
+    assert(text('turns')==='2'&&text('minutes')==='20'&&text('draws')==='5'&&text('revision')==='6','handoff changed resource/RNG/turn');
+    assert(doc.getElementById('log').firstElementChild.textContent.includes('goblin sighting remains established'),'handoff lost narration');
+    doc.getElementById('save').click();
+    const save=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
+    assert(save.schemaVersion===6&&save.activeEncounter.stage==='awaiting-referee-continuation','stage not persisted');
+    assert(save.activeEncounter.visibility.identity==='goblin','player knowledge not persisted');
+    doc.getElementById('reset').click();doc.getElementById('load').click();
+    assert(text('encounter')==='Awaiting referee · Goblin visible within torchlight'&&text('revision')==='6','saved handoff did not load');
+    send('handoff encounter');send('we rest for one turn');send('end encounter');
+    assert(text('turns')==='2'&&text('draws')==='5'&&text('revision')==='6','unsupported followup mutated game');
+    frame.contentWindow.localStorage.setItem(SAVE_KEY,JSON.stringify(createDemoState(1)));
+    doc.getElementById('load').click();
+    send('we rest for one turn');send('we rest for one turn');send('establish pending encounter');
+    send('adjudicate surprise');send('assess encounter visibility');send('handoff encounter');
+    assert(text('encounter')==='Awaiting referee · No confirmed sighting','unknown presence became known');
+    const entry=doc.getElementById('log').firstElementChild.textContent;
+    assert(!entry.toLowerCase().includes('goblin')&&!entry.includes('70 feet'),'unknown identity leaked');
+    mark('passed','Handoff continuity, persistence, knowledge filtering and refusals passed.');
+  }catch(error){mark('failed',String(error.stack||error));}
+},25);
+setTimeout(()=>{if(!tried){clearInterval(check);mark('failed','Game never booted');}},5000);
+</script></body></html>
