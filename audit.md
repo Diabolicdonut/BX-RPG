@@ -1,5 +1,12 @@
 # Acceptance audit (newest first)
 
+## v0.1.5 — QUALIFIED CANDIDATE — non-resolving encounter handoff and player knowledge
+
+Moldvay Basic B23 defines the encounter sequence; this checkpoint adds **bookkeeping only**, not an encounter action/resolution mechanic. Typed `encounter.handoff` transitions exclusively from previously adjudicated perception to still-active `awaiting-referee-continuation`, without rolling dice, advancing dungeon turns, expiring light or removing an encounter. New public player-knowledge projection carries forward known/unknown visibility and own-side surprise, without exposing unestablished opponent rolls, precise distance, monster count or private information. Schema v6 migrates exact v1-v5 saves and rejects forged future-stage v5 data. No monster reactions, initiative, combat, live AI or secure browser secrets. Known World not modified.
+
+**Qualified evidence:** exact executable/test candidate `be7e92308c1eb4871a8d925de2b9f983ffd2b0e8` passed GitHub Actions `40331496756`: **55/55 Node**, existing and new real-Chrome command/state/save/load and refusal integration, plus syntax and committed-secret checks. Earlier candidate `37148f0a22ab98201bd9e98d36b256f38f8da178` had two stale schema-version test assertions; application/browser tests passed. Those assertions were updated and full CI re-run green. **PR #11 awaiting qualified-docs CI and merge.** Do not claim accepted until main/Pages checks. Next checkpoint after acceptance: **v0.1.6 — source-validated encounter disposition/return-to-exploration authority boundary** (no invented combat or consequences).
+
+
 ## v0.1.4 — FULLY ACCEPTED — conditional encounter perception
 
 Scope: Moldvay Basic p. B21 (30-foot torch illumination) and p. B23 (referee contextual sight/distance). Explicit public authored corridor evidence is validated separately from existing B53 public goblin contact. `encounter.perceive` accepts only the already surprise-adjudicated contact, preserves RNG/time/light, and discloses only justified visible presence, independently recognized identity, and qualitative within-torchlight proximity; otherwise all facts remain unestablished. Schema v5 preserves exact earlier saves including v4. No maps, monster AI, initiative, reactions, combat, private data or live AI. Known World untouched.
