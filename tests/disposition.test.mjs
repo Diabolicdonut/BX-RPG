@@ -93,7 +93,7 @@ test('conclusion never publishes raw distance, count, enemy rolls or unknown ide
   }
 });
 test('v6 save migration retains unresolved contact and does not fabricate a conclusion',()=>{
-  const s=ready();const v6={...s,schemaVersion:6};
+  const s=ready();const {lastEncounter,...previous}=s;const v6={...previous,schemaVersion:6};
   const migrated=decodeSave(JSON.stringify(v6));
   assert.equal(migrated.schemaVersion,7);assert.equal(migrated.lastEncounter,null);
   assert.deepEqual(migrated.rng,s.rng);assert.deepEqual(migrated.activeEncounter,s.activeEncounter);
