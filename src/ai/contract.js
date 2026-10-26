@@ -8,6 +8,8 @@ export function parseLocalIntent(text,baseRevision) {
   const diagnostic=parseLocalDiagnostic(text,baseRevision);
   if (diagnostic) return diagnostic;
   if (typeof text!=='string') return null;
+  if (text.trim().toLowerCase()==='handoff encounter')
+    return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.handoff'}]};
   if (text.trim().toLowerCase()==='assess encounter visibility')
     return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.perceive'}]};
   if (text.trim().toLowerCase()==='adjudicate surprise')
@@ -23,6 +25,15 @@ export function narrateAuthoritativeResult(result) {
   if (!result.accepted) return `Action declined: ${result.error}. State unchanged.`;
   const outcome=result.outcomes[0];
   if(outcome.kind==='diagnostic.roll') return `Diagnostic d6: ${outcome.value}. This is not a B/X game action.`;
+  if(outcome.kind==='encounter.handoff') {
+    const knowledge=outcome.knowledge.visibility;
+    const sight=knowledge.presence==='visible'
+      ? knowledge.identity==='goblin'
+        ? 'The goblin sighting remains established.'
+        : 'The creature sighting remains established; its identity is unknown.'
+      : 'No creature is confirmed visible; presence remains unestablished.';
+    return `The encounter remains unresolved, awaiting further referee adjudication. ${sight} No additional dungeon time has passed.`;
+  }
   if(outcome.kind==='encounter.perception') {
     const sight=outcome.visibility;
     if(sight.presence!=='visible')

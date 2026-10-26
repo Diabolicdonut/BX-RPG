@@ -26,7 +26,7 @@ try {
   await delay(350);
   const boot=await dumpPage('');
   if(!boot.includes('data-boot-status="ready"') ||
-    !boot.includes('B/X perception boundary ready.') ||
+    !boot.includes('B/X knowledge-handoff boundary ready.') ||
     !boot.includes('Sample Fighter') || !boot.includes('4/4') ||
     !boot.includes('6 turns remaining'))throw Error(`Browser boot smoke failed: ${boot.slice(-1200)}`);
   const probe=await dumpPage('tests/browser-probe.html');
@@ -44,5 +44,9 @@ try {
   if(!perception.includes('data-smoke-status="passed"') ||
     !perception.includes('Perception visibility, narration, persistence and refusals passed.'))
     throw Error(`Perception browser smoke failed: ${perception.slice(0,1600)}`);
-  console.log('Browser smoke passed: boot, encounters, surprise, perception, visibility, save/load, refusals.');
+  const handoff=await dumpPage('tests/handoff-browser-probe.html');
+  if(!handoff.includes('data-smoke-status="passed"') ||
+    !handoff.includes('Handoff continuity, persistence, knowledge filtering and refusals passed.'))
+    throw Error(`Handoff browser smoke failed: ${handoff.slice(0,1600)}`);
+  console.log('Browser smoke passed: boot, encounters, surprise, perception, handoff, save/load, refusals.');
 } finally {server.kill();}
