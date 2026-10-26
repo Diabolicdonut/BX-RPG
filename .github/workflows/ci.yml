@@ -14,6 +14,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Check browser runner JavaScript syntax
+        run: node --check tests/browser-smoke.mjs
       - run: npm test
       - name: Inspect for committed secrets and banned BECMI imports
         run: |
