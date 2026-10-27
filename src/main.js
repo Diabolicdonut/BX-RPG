@@ -14,7 +14,7 @@ function say(message) {
 function refresh(){renderState(state);}
 function handle(text){
   const lower=text.trim().toLowerCase();
-  if(lower==='help') {say('Offline commands: help, status, roll d6 (diagnostic), we rest for one turn, establish pending encounter, adjudicate surprise, assess encounter visibility, handoff encounter, resolve public demo nonpursuit, resolve public demo monster withdrawal, record public demo pursuit choice (offline referee diagnostics). Save/load use the buttons. No AI service is connected.');return;}
+  if(lower==='help') {say('Offline commands: help, status, roll d6 (diagnostic), we rest for one turn, establish pending encounter, adjudicate surprise, assess encounter visibility, handoff encounter, resolve public demo nonpursuit, resolve public demo monster withdrawal, record public demo pursuit choice, review public demo pursuit rates (offline referee diagnostics). Save/load use the buttons. No AI service is connected.');return;}
   if(lower==='status') {
     const m=getStatusModel(state);
     say(`Revision ${m.revision}; dungeon turns ${m.turns}; elapsed minutes ${m.minutes}; light ${m.light}; RNG draws ${m.draws}.`);return;
@@ -25,7 +25,7 @@ function handle(text){
     if(result.accepted) state=result.state;
     say(narrateAuthoritativeResult(result));refresh();return;
   }
-  say('Offline parser supports only explicit rest commands, establish pending encounter, adjudicate surprise, assess encounter visibility, handoff encounter, resolve public demo nonpursuit, resolve public demo monster withdrawal, record public demo pursuit choice, and roll d6 diagnostics. No AI referee is connected; state unchanged. Try help.');
+  say('Offline parser supports only explicit rest commands, establish pending encounter, adjudicate surprise, assess encounter visibility, handoff encounter, resolve public demo nonpursuit, resolve public demo monster withdrawal, record public demo pursuit choice, review public demo pursuit rates, and roll d6 diagnostics. No AI referee is connected; state unchanged. Try help.');
 }
 form.addEventListener('submit',event=>{event.preventDefault();const text=command.value;command.value='';if(text.trim())handle(text);});
 document.getElementById('save').addEventListener('click',()=>{
@@ -35,5 +35,5 @@ document.getElementById('load').addEventListener('click',()=>{
   try {state=loadFromStorage(window.localStorage);refresh();say(`Loaded revision ${state.revision}.`);} catch(error){say(`Load failed: ${error.message}`);}
 });
 document.getElementById('reset').addEventListener('click',()=>{state=createDemoState();refresh();say('Demo state reset to documented seed. Saved state remains available.');});
-refresh();say('B/X pursuit-decision boundary ready. Type help. AI referee: disconnected.');
+refresh();say('B/X pursuit-rate prerequisite ready. Type help. AI referee: disconnected.');
 document.getElementById('app').dataset.bootStatus='ready';

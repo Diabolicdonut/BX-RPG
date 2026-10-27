@@ -30,7 +30,7 @@ let started=false;const timer=setInterval(()=>{
     check(narration.includes('remains unresolved'),'narration claimed a completed chase');
     doc.getElementById('save').click();
     const saved=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
-    check(saved.schemaVersion===9&&saved.activeEncounter.stage==='awaiting-pursuit-adjudication',
+    check(saved.schemaVersion===10&&saved.activeEncounter.stage==='awaiting-pursuit-adjudication',
       'pursuit decision not serialized');
     doc.getElementById('reset').click();doc.getElementById('load').click();
     check(value('encounter').startsWith('Pursuit choice recorded'),'saved decision was not restored');
