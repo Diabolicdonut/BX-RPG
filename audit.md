@@ -1,5 +1,12 @@
 # Acceptance audit (newest first)
 
+## v0.1.8 — QUALIFIED CANDIDATE (NOT YET ACCEPTED) — recorded pursuit election
+
+**Authority / G08 partial:** Original Moldvay Basic (1981) p. B24 supports the party deciding whether to pursue evading creatures. This *public authored demo* adds only an independently verified monster-withdrawal + party-pursuit election for an established visible target. It transitions to an unresolved `awaiting-pursuit-adjudication` stage, with zero RNG/light/time/HP or encounter-outcome changes. All existing nonpursuit closures remain separate. The stage is documented in an exact, validated journal record; no running speed, distance, pursuit result, reactions, combat or private map is invented. v9 save schema migrates v1–v8; v8 cannot claim a v9 pursuit event.
+
+**Qualified feature/tests:** SHA `eb7657ca35b2cef7a319e401b0208b4785d3ded2` passed Actions `40568068514`: **84/84 Node**, full Chrome including exact pursuit command/save/load/refusal, prior game progression and 19% authoritative roadmap widget, syntax/security checks. Earlier candidate `956dbb499c40f28d21389aaf8b4cd17aeea277e6` failed Node due only to two inherited schema-version test assertions (Chrome passed); assertions were updated; production save validator was not loosened. PR #21 remains unmerged until this documentation qualification, exact-main Node/Chrome and Pages pass. Gate G08 remains **partial and zero credited**; overall **19%** unchanged. Next anticipated checkpoint **v0.1.9** — narrow source-backed pursuit movement/rate prerequisite.
+
+
 ## 2026-10-27 — FULLY ACCEPTED full-vision roadmap governance (NOT a B/X rules milestone)
 
 **Acceptance evidence:** candidate `3ffe3153aca179855b106c8c58b2095f22051a83` passed `40521445296` (**76/76 Node**, real Chrome existing B/X demos and 19% full-roadmap widget, exact markdown/manifest correspondence, server JSON/Markdown, syntax/secrets checks). Qualified documentation SHA `c7b76b14e3bef6ac0cc5f39f947f8a6144d57ec4` passed `40521756691`. PR #19 merged on `main` as `2047d4d8f64219524b317a0871c9f47dc4d23f3c`; exact-main Actions `40521927723` **SUCCESS** and Pages `40521927048` **SUCCESS**. Initial browser failure `40521185523` was traced to local test server missing JSON/Markdown MIME/allowlist; corrected without game mechanic changes. This final closeout is documentation-only and follows successful main verification.

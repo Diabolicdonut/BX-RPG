@@ -124,7 +124,7 @@ test('tampered light/pending/turn records, schema, and unexpected save fields fa
   for(const patch of [
     {light:{kind:'torch',remainingTurns:30}},{light:null},
     {light:{kind:'none',remainingTurns:6}},{pendingEncounter:{kind:'wandering',dueTurn:1}},
-    {pendingEncounter:false},{schemaVersion:9},{ruleset:'BECMI'},{extraSecret:'abc'},
+    {pendingEncounter:false},{schemaVersion:10},{ruleset:'BECMI'},{extraSecret:'abc'},
     {journal:[{kind:'dungeon.rest',turn:1,lightRemaining:5,torchExpired:false,die:1}]}
   ])assert.throws(()=>assertValidState({...s,...patch}));
   assert.throws(()=>decodeSave(JSON.stringify({schemaVersion:1,foo:'forged'})));
