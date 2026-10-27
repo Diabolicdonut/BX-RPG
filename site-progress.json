@@ -17,87 +17,158 @@
     "note": "These are scoped demonstration gates, not completion of the full B/X ruleset."
   },
   "roadmap": {
-    "label": "Full approved B/X RPG delivery roadmap",
-    "scope": "Bounded B/X Moldvay/Cook source-faithful conversational RPG release: legal exploration, encounters, spells, characters, integrated AI referee and complete play. It is not the Known World BECMI implementation.",
-    "document": "ROADMAP-COVERAGE.md",
-    "note": "Weighted, accepted-gates-only planning progress; partial gates earn zero until accepted. Existing milestone/phase percentage is separately preserved.",
+    "label": "Full B/X RPG long-term product vision",
+    "scope": "Original 1981 B/X browser RPG: complete rules, characters, Expert wilderness, adventures, secure AI referee, replayable campaigns, optional party autonomy, presentation and full release QA.",
+    "document": "DEVELOPMENT-ROADMAP.md",
+    "documentUrl": "https://github.com/Diabolicdonut/BX-RPG/blob/main/DEVELOPMENT-ROADMAP.md",
+    "note": "Accepted-only weighted gates; planned and partial work earn zero. Rebased from the earlier limited-delivery 36% to 19% for the full long-term scope; no completed functionality was removed.",
     "gates": [
       {
-        "id": "deterministic-boundary",
-        "label": "Source-faithful B/X deterministic engine and save migration",
-        "weight": 8,
+        "id": "g01",
+        "label": "Deterministic intent and state boundary (demo scope)",
+        "weight": 4,
         "status": "accepted",
-        "evidence": "README.md; pipeline-state.md"
+        "evidence": "src/state/state.js; tests/foundation.test.mjs"
       },
       {
-        "id": "exploration-clock",
-        "label": "Dungeon turns, torchlight and supplies",
-        "weight": 8,
+        "id": "g02",
+        "label": "Seeded dice and exact versioned save migration (v1–v8)",
+        "weight": 4,
         "status": "accepted",
-        "evidence": "pipeline-state.md; src"
+        "evidence": "src/state/rng.js; src/state/storage.js; tests"
       },
       {
-        "id": "encounter-contact",
-        "label": "Wandering encounter establishment",
+        "id": "g03",
+        "label": "Basic dungeon clock and six-turn torch demonstration",
+        "weight": 3,
+        "status": "accepted",
+        "evidence": "src/state/state.js; tests/exploration-turn.test.mjs"
+      },
+      {
+        "id": "g04",
+        "label": "Bounded wandering encounter and distance demonstration",
+        "weight": 3,
+        "status": "accepted",
+        "evidence": "src/content/encounters/level1-goblin.js; tests/encounter-contact.test.mjs"
+      },
+      {
+        "id": "g05",
+        "label": "Surprise, sight and player-information demonstration",
+        "weight": 3,
+        "status": "accepted",
+        "evidence": "tests/surprise.test.mjs; tests/perception.test.mjs"
+      },
+      {
+        "id": "g06",
+        "label": "Two evidence-gated nonpursuit demonstration outcomes",
+        "weight": 2,
+        "status": "accepted",
+        "evidence": "tests/disposition.test.mjs; tests/monster-withdrawal.test.mjs"
+      },
+      {
+        "id": "g07",
+        "label": "Complete B/X dungeon exploration, hazards and resource loop",
         "weight": 7,
-        "status": "accepted",
-        "evidence": "pipeline-state.md"
+        "status": "planned",
+        "evidence": "Acceptance plan below; not yet implemented"
       },
       {
-        "id": "surprise-and-knowledge",
-        "label": "Surprise, observation and public identity gating",
-        "weight": 7,
-        "status": "accepted",
-        "evidence": "pipeline-state.md"
-      },
-      {
-        "id": "documented-withdrawal",
-        "label": "Evidence-bound party and monster nonpursuit demonstrations",
+        "id": "g08",
+        "label": "Full encounter reactions, movement, evasion and pursuit",
         "weight": 6,
-        "status": "accepted",
-        "evidence": "pipeline-state.md"
-      },
-      {
-        "id": "encounter-continuation",
-        "label": "Generalized reactions, pursuit and encounter continuation",
-        "weight": 10,
         "status": "partial",
-        "evidence": "pipeline-state.md (next v0.1.8)"
+        "evidence": "Next v0.1.8; existing cases do not satisfy general encounter rules"
       },
       {
-        "id": "combat-and-experience",
-        "label": "Combat, damage, rewards and advancement under B/X",
-        "weight": 14,
+        "id": "g09",
+        "label": "B/X combat, initiative, morale, saves and conditions",
+        "weight": 8,
         "status": "planned",
-        "evidence": "README.md; pipeline-state.md"
+        "evidence": "Acceptance plan below; not yet implemented"
       },
       {
-        "id": "classes-magic",
-        "label": "Complete classes, saves, magic and spell resources",
-        "weight": 12,
-        "status": "planned",
-        "evidence": "README.md"
-      },
-      {
-        "id": "wilderness-modules",
-        "label": "Validated adventure maps, wilderness, module integration and full play",
-        "weight": 11,
-        "status": "planned",
-        "evidence": "README.md"
-      },
-      {
-        "id": "private-ai-referee",
-        "label": "Connected and secure AI referee for flexible intent and narration",
-        "weight": 10,
-        "status": "planned",
-        "evidence": "README.md"
-      },
-      {
-        "id": "release-qa",
-        "label": "Real desktop/mobile end-to-end adventure QA and documentation",
+        "id": "g10",
+        "label": "Seven B/X classes, creation, equipment and advancement",
         "weight": 7,
+        "status": "planned",
+        "evidence": "Acceptance plan below; demo fighter is not character generation"
+      },
+      {
+        "id": "g11",
+        "label": "Complete Basic and Expert spellcasting and magical effects",
+        "weight": 6,
+        "status": "planned",
+        "evidence": "Acceptance plan below; not yet implemented"
+      },
+      {
+        "id": "g12",
+        "label": "Treasure, XP, retainers, downtime and economic systems",
+        "weight": 5,
+        "status": "planned",
+        "evidence": "Acceptance plan below; not yet implemented"
+      },
+      {
+        "id": "g13",
+        "label": "Expert wilderness, travel, sea play and domain framework",
+        "weight": 6,
+        "status": "planned",
+        "evidence": "Acceptance plan below; not yet implemented"
+      },
+      {
+        "id": "g14",
+        "label": "Source-verified Basic/Expert monster catalogue and behavior",
+        "weight": 6,
+        "status": "planned",
+        "evidence": "Acceptance plan below; goblin fixture is not a catalogue"
+      },
+      {
+        "id": "g15",
+        "label": "Adventure packages, authored scenarios and module import",
+        "weight": 6,
+        "status": "planned",
+        "evidence": "Acceptance plan below; not yet implemented"
+      },
+      {
+        "id": "g16",
+        "label": "Secure server-authoritative AI referee and natural-language play",
+        "weight": 7,
+        "status": "planned",
+        "evidence": "Acceptance plan below; local whitelist is not live AI"
+      },
+      {
+        "id": "g17",
+        "label": "Replayable procedural adventures, worlds and campaigns",
+        "weight": 5,
+        "status": "planned",
+        "evidence": "Acceptance plan below; not yet implemented"
+      },
+      {
+        "id": "g18",
+        "label": "Party agency: single character, full party and AI/spectator",
+        "weight": 4,
+        "status": "planned",
+        "evidence": "Acceptance plan below; optional future capability"
+      },
+      {
+        "id": "g19",
+        "label": "Accessible visual maps, positions, UX polish and optional audio",
+        "weight": 3,
         "status": "partial",
-        "evidence": "README.md; .github/workflows/ci.yml"
+        "evidence": "Static UI/progress exists; no integrated map or audio"
+      },
+      {
+        "id": "g20",
+        "label": "Persistent hosted campaigns and optional group play",
+        "weight": 2,
+        "status": "planned",
+        "evidence": "Acceptance plan below; localStorage demo is insufficient"
+      },
+      {
+        "id": "g21",
+        "label": "Release security, full-play QA, documentation and deployment",
+        "weight": 3,
+        "status": "partial",
+        "evidence": "CI/Pages exists; full-play security and QA remain"
       }
     ]
   }

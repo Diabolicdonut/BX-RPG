@@ -56,6 +56,10 @@ try {
   if(!monsterWithdrawal.includes('data-smoke-status="passed"') ||
      !monsterWithdrawal.includes('Monster withdrawal, no pursuit, strict save and resumption passed.'))
     throw Error(`Monster-withdrawal Chrome smoke failed: ${monsterWithdrawal.slice(0,1700)}`);
-  console.log('Browser smoke passed: boot, contact, surprise, sight, handoff, both public disposition cases and save/load.');
+  const progress=await dumpPage('tests/roadmap-browser-probe.html');
+  if(!progress.includes('data-smoke-status="passed"') ||
+    !progress.includes('Roadmap widget revision, full-vision 19%, 21 gates and phase basis passed.'))
+    throw Error(`Full-vision roadmap browser smoke failed: ${progress.slice(0,2000)}`);
+  console.log('Browser smoke passed: boot, encounter, both dispositions, save/load and authoritative 19% full-vision roadmap.');
 
 } finally {server.kill();}

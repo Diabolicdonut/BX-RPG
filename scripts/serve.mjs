@@ -2,12 +2,14 @@ import {createServer} from 'node:http';
 import {readFile} from 'node:fs/promises';
 import {resolve,sep,extname} from 'node:path';
 const root=resolve(import.meta.dirname,'..');
-const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml'};
+const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8',
+  '.css':'text/css; charset=utf-8','.svg':'image/svg+xml',
+  '.json':'application/json; charset=utf-8','.md':'text/markdown; charset=utf-8'};
 const server=createServer(async(req,res)=>{
   try {
     const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
     const full=resolve(root,'.'+(pathname==='/'?'/index.html':pathname));
-    if(!(full===root||full.startsWith(root+sep))||!['.html','.js','.css','.svg'].includes(extname(full)))throw Error('Not found');
+    if(!(full===root||full.startsWith(root+sep))||!Object.prototype.hasOwnProperty.call(mime,extname(full)))throw Error('Not found');
     const bytes=await readFile(full);res.writeHead(200,{'content-type':mime[extname(full)],'x-content-type-options':'nosniff'});res.end(bytes);
   }catch{res.writeHead(404);res.end('Not found');}
 });

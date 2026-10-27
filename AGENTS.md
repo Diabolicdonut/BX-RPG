@@ -1,5 +1,10 @@
 # B/X RPG development policy
 
+**START HERE FOR ALL FUTURE WORK:** [DEVELOPMENT-ROADMAP.md](DEVELOPMENT-ROADMAP.md) is the authoritative full-vision product charter, phase plan, gate acceptance criteria, source hierarchy, change-control process, and progress denominator. Read it on every new task **together with** the newest accepted `main`, `audit.md` and `pipeline-state.md`. Only the accepted GitHub state describes implemented functionality.
+
+**Required for every accepted development milestone:** update the roadmap's current accepted revision, Gxx statuses/evidence and dated change log, update the 1:1 `site-progress.json` mirror, then append verified SHA/CI/Pages evidence to `audit.md` and next action to `pipeline-state.md`. Run `tests/roadmap.test.mjs` and real Chrome progress/UX smoke along with the full suites. If a gate is partial or planned, it earns **zero** credit until complete. Never change weights to inflate progress; any scope change requires a reviewed, documented rebaseline. A roadmap edit is not itself a B/X rules milestone.
+
+
 - This is **Diabolicdonut/BX-RPG only**. The Known World source `Diabolicdonut/BECMI-Mystara` is **READ ONLY**. Do not edit, branch, or trigger actions there.
 - Primary rules: original 1981 Moldvay Basic (TSR 1011) plus Cook/Marsh Expert (TSR 1012). OSE Classic Fantasy v1.3 is clarification only. Never import Mentzer/Rules Cyclopedia differences silently. Cite rule-source page/section in future mechanic PRs and document B/X versus OSE differences.
 - No Mystara world data, BECMI Companion/Master/Immortals rules, Weapon Measure, Context Matrix, Ferocity, Arms Across Eras, mass combat, or unrelated expansions. Avoid copyrighted PDFs, long reproduced passages, and proprietary art.

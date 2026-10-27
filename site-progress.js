@@ -155,7 +155,11 @@
       if (roadmap.data.document && /^[a-zA-Z0-9_./-]+$/.test(roadmap.data.document) &&
           !roadmap.data.document.includes('..')) {
         const link = make('a', '', 'Read roadmap and acceptance evidence');
-        link.href = new URL(roadmap.data.document, root).href;
+        const official = roadmap.data.documentUrl;
+        // Optional published GitHub Markdown renderer; never accept javascript: or external app URLs.
+        link.href = (typeof official === 'string' &&
+          /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/blob\/main\/[A-Za-z0-9_./-]+\.md$/.test(official) &&
+          !official.includes('..')) ? official : new URL(roadmap.data.document, root).href;
         link.target = '_blank'; link.rel = 'noopener noreferrer';
         body.append(link);
       }

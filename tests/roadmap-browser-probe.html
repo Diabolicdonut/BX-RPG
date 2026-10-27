@@ -1,0 +1,39 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Full-vision progress integration</title></head>
+<body data-smoke-status="pending"><iframe id="game" src="../index.html" title="B/X RPG"></iframe><pre id="result">Waiting...</pre>
+<script type="module">
+const frame=document.getElementById('game');
+const end=(status,msg)=>{document.body.dataset.smokeStatus=status;document.getElementById('result').textContent=msg;};
+const fail=msg=>{throw Error(msg);};
+const timer=setInterval(()=>{
+  const doc=frame.contentDocument;
+  if(doc?.getElementById('app')?.dataset.bootStatus!=='ready')return;
+  const widget=doc.getElementById('project-progress-status');
+  if(!widget)return;
+  clearInterval(timer);
+  try{
+    const summary=widget.querySelector('summary');
+    if(!summary)fail('progress summary missing');
+    const label=summary.textContent;
+    if(!label.includes('Rev v0.1.7'))fail('accepted version not displayed: '+label);
+    if(!label.includes('Roadmap 19%'))fail('full-vision percentage not shown: '+label);
+    if(label.includes('36%'))fail('outdated limited roadmap still displayed');
+    const detail=widget.querySelector('details');detail.open=true;
+    const points=widget.querySelector('.p-detail').textContent;
+    if(!points.includes('19 of 100 weighted delivery points accepted'))fail('weighted math incorrect');
+    if(!points.includes('6 of 9 tracked units complete'))fail('separate demo phase missing');
+    const gates=widget.querySelectorAll('.p-gates li');
+    if(gates.length!==21)fail('expected full 21-gate denominator, got '+gates.length);
+    if(widget.querySelectorAll('.p-gates .p-accepted').length!==6)fail('accepted gates incorrect');
+    if(widget.querySelectorAll('.p-gates .p-partial').length!==3)fail('partial gates incorrectly counted');
+    const link=widget.querySelector('.p-detail a');
+    if(!link||!link.href.endsWith('/Diabolicdonut/BX-RPG/blob/main/DEVELOPMENT-ROADMAP.md'))
+      fail('authoritative roadmap link incorrect');
+    if(!doc.querySelector('header .roadmap-link a'))fail('header roadmap navigation missing');
+    if(doc.getElementById('app').dataset.bootStatus!=='ready')fail('game failed to boot');
+    end('passed','Roadmap widget revision, full-vision 19%, 21 gates and phase basis passed.');
+  }catch(error){end('failed',String(error.stack||error));}
+},45);
+setTimeout(()=>{if(document.body.dataset.smokeStatus==='pending'){
+  clearInterval(timer);end('failed','Progress widget did not render after game boot');
+}},3500);
+</script></body></html>
