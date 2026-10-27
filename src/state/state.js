@@ -168,7 +168,7 @@ export function assertValidState(state) {
         state.journal.at(-1)?.dueTurn===state.activeEncounter.dueTurn &&
         state.journal.at(-1)?.evidenceId===monsterWithdrawalPursued.id) :
       (state.journal.at(-1)?.kind==='encounter.pursuit-decision' ||
-       state.journal.at(-1)?.kind==='encounter.pursuit-rate-review')))
+       state.journal.at(-1)?.kind==='encounter.pursuit-rate-review'))))
     throw Error('Invalid or unsupported B/X demo save');
   return state;
 }
