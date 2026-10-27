@@ -8,8 +8,10 @@ import {validatePerceptionEvidence,derivePublicVisibility} from '../rules/percep
 import {projectPlayerEncounterKnowledge} from './player-knowledge.js';
 import {unpursuedWithdrawal,monsterWithdrawalUnpursued} from '../content/encounters/public-disposition.js';
 import {validateDispositionEvidence,dispositionForEvidenceId} from '../rules/disposition-evidence.js';
+import {monsterWithdrawalPursued} from '../content/encounters/public-pursuit.js';
+import {validatePursuitEvidence} from '../rules/pursuit-evidence.js';
 
-export const SCHEMA_VERSION = 8;
+export const SCHEMA_VERSION = 9;
 const own = (o,k) => Object.prototype.hasOwnProperty.call(o,k);
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const exact = (v, keys) => object(v) && Object.keys(v).length === keys.length && keys.every(k=>own(v,k));
@@ -78,7 +80,8 @@ function validContact(e,s){
       e.evidenceId===null && sameVisibility(e.visibility,unestablishedVisibility())) ||
      (e.stage==='surprise-adjudicated' && validSurprise(e.surprise) &&
       e.evidenceId===null && sameVisibility(e.visibility,unestablishedVisibility())) ||
-     ((e.stage==='perception-adjudicated' || e.stage==='awaiting-referee-continuation') && validSurprise(e.surprise) &&
+     ((e.stage==='perception-adjudicated' || e.stage==='awaiting-referee-continuation' ||
+       e.stage==='awaiting-pursuit-adjudication') && validSurprise(e.surprise) &&
       typeof e.evidenceId==='string' && knownPerceptionEvidence(e.evidenceId)!==null &&
       sameVisibility(e.visibility,derivePublicVisibility(
         knownPerceptionEvidence(e.evidenceId),s.light,e.distanceFeet))));
@@ -118,13 +121,19 @@ function validHandoffRecord(e,s) {
   return exact(e,['kind','dueTurn']) && e.kind==='encounter.handoff' &&
     Number.isSafeInteger(e.dueTurn) && e.dueTurn>=1 && e.dueTurn<=s.turns+1;
 }
+function validPursuitRecord(e,s) {
+  return exact(e,['kind','dueTurn','evidenceId']) &&
+    e.kind==='encounter.pursuit-decision' &&
+    Number.isSafeInteger(e.dueTurn) && e.dueTurn>=1 && e.dueTurn<=s.turns+1 &&
+    e.evidenceId===monsterWithdrawalPursued.id;
+}
 function validPerceptionRecord(e,s) {
   return exact(e,['kind','dueTurn']) && e.kind==='encounter.perception' &&
     Number.isSafeInteger(e.dueTurn) && e.dueTurn>=1 && e.dueTurn<=s.turns+1;
 }
 export function assertValidState(state) {
   if (!exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter','lastEncounter']) || state.schemaVersion!==SCHEMA_VERSION ||
-    !validShared(state) || !state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state)||validSurpriseRecord(e,state)||validPerceptionRecord(e,state)||validHandoffRecord(e,state)||validCloseRecord(e,state)) ||
+    !validShared(state) || !state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state)||validSurpriseRecord(e,state)||validPerceptionRecord(e,state)||validHandoffRecord(e,state)||validCloseRecord(e,state)||validPursuitRecord(e,state)) ||
     !exact(state.light,['kind','remainingTurns']) ||
     !['torch','none'].includes(state.light.kind) ||
     !Number.isInteger(state.light.remainingTurns) || state.light.remainingTurns<0 ||
@@ -136,7 +145,13 @@ export function assertValidState(state) {
       state.pendingEncounter.dueTurn===state.turns+1)) ||
     !(state.activeEncounter===null||validContact(state.activeEncounter,state)) ||
     (state.pendingEncounter!==null && state.activeEncounter!==null) ||
-    !(state.lastEncounter===null || validLastEncounter(state.lastEncounter,state)))
+    !(state.lastEncounter===null || validLastEncounter(state.lastEncounter,state)) ||
+    (state.activeEncounter?.stage==='awaiting-pursuit-adjudication' ?
+      !(state.activeEncounter.visibility.presence==='visible' &&
+        state.journal.at(-1)?.kind==='encounter.pursuit-decision' &&
+        state.journal.at(-1)?.dueTurn===state.activeEncounter.dueTurn &&
+        state.journal.at(-1)?.evidenceId===monsterWithdrawalPursued.id) :
+      state.journal.at(-1)?.kind==='encounter.pursuit-decision'))
     throw Error('Invalid or unsupported B/X demo save');
   return state;
 }
@@ -144,6 +159,15 @@ export function assertValidState(state) {
 // Exact historical save migrations: no new dice rolls, visibility, or resources.
 export function migrateSaveState(state) {
   if(state?.schemaVersion===SCHEMA_VERSION)return assertValidState(state);
+  if(exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter','lastEncounter']) &&
+    state.schemaVersion===8 && validShared(state) &&
+    state.activeEncounter?.stage!=='awaiting-pursuit-adjudication' &&
+    state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||
+      validContactRecord(e,state)||validSurpriseRecord(e,state)||
+      validPerceptionRecord(e,state)||validHandoffRecord(e,state)||validCloseRecord(e,state))) {
+    // No v9-only pursuit event or stage may appear in a historical v8 save.
+    return assertValidState({...state,schemaVersion:SCHEMA_VERSION});
+  }
   if(exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter','lastEncounter']) &&
     state.schemaVersion===7 && validShared(state) &&
     state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state)||
@@ -219,17 +243,21 @@ function validProposal(state,p) {
   if (exact(op,['kind']) && op.kind==='encounter.surprise') return 'encounter.surprise';
   if (exact(op,['kind']) && op.kind==='encounter.perceive') return 'encounter.perceive';
   if (exact(op,['kind']) && op.kind==='encounter.handoff') return 'encounter.handoff';
+  if (exact(op,['kind']) && op.kind==='encounter.pursuit-decision') return 'encounter.pursuit-decision';
   if (exact(op,['kind']) && op.kind==='encounter.conclude') return 'encounter.conclude';
   if (exact(op,['kind']) && op.kind==='encounter.conclude.monster-withdrawal') return 'encounter.conclude.monster-withdrawal';
   return null;
 }
 export function executeProposal(state,proposal,encounterPacket=levelOneGoblinContact,
-  perceptionEvidence=clearRecognized, dispositionEvidence=undefined) {
+  perceptionEvidence=clearRecognized, dispositionEvidence=undefined,
+  pursuitEvidence=monsterWithdrawalPursued) {
   assertValidState(state);
   const kind=validProposal(state,proposal);
   if (!kind) return {accepted:false,state,outcomes:[],error:'Unsupported or stale proposal'};
   if (kind==='dungeon.rest' && (state.pendingEncounter||state.activeEncounter))
     return {accepted:false,state,outcomes:[],error:'Encounter adjudication is required before another turn'};
+  if (kind==='diagnostic.roll' && state.activeEncounter?.stage==='awaiting-pursuit-adjudication')
+    return {accepted:false,state,outcomes:[],error:'Pursuit needs referee adjudication first'};
   if (kind==='diagnostic.roll') {
     const roll=rollDie(state.rng,6);
     const outcome={kind:'diagnostic.roll',sides:6,value:roll.value};
@@ -333,6 +361,37 @@ export function executeProposal(state,proposal,encounterPacket=levelOneGoblinCon
       kind:'encounter.handoff',
       knowledge:projectPlayerEncounterKnowledge(next),
       stage:'awaiting-referee'
+    }]};
+  }
+  if(kind==='encounter.pursuit-decision') {
+    // B24: the monsters wish to evade; the party elects to follow.
+    // This records a pending choice, not speed/position, a pursuit
+    // round, dice, time, escape, or a concluded encounter.
+    const contact=state.activeEncounter;
+    if(!contact || contact.stage!=='awaiting-referee-continuation')
+      return {accepted:false,state,outcomes:[],error:'No referee-ready encounter for pursuit choice'};
+    if(contact.visibility.presence!=='visible')
+      return {accepted:false,state,outcomes:[],error:'No confirmed visible target in the public demonstration'};
+    try {
+      validateEncounterPacket(encounterPacket);
+      const evidence=validatePursuitEvidence(pursuitEvidence);
+      if(contact.packetId!==encounterPacket.id ||
+        contact.monster!==encounterPacket.monster ||
+        contact.numberAppearing!==encounterPacket.numberAppearing ||
+        contact.packetId!==evidence.contactId ||
+        contact.dueTurn!==state.turns+1)
+        throw Error('Pursuit evidence and contact do not match');
+    } catch {
+      return {accepted:false,state,outcomes:[],error:'Unverified or unsupported public pursuit choice'};
+    }
+    const next={...state,revision:state.revision+1,
+      activeEncounter:{...contact,stage:'awaiting-pursuit-adjudication'},
+      journal:[...state.journal,{kind:'encounter.pursuit-decision',
+        dueTurn:contact.dueTurn,evidenceId:monsterWithdrawalPursued.id}].slice(-20)};
+    assertValidState(next);
+    return {accepted:true,state:next,outcomes:[{
+      kind:'encounter.pursuit-decision',stage:'awaiting-referee',
+      knowledge:projectPlayerEncounterKnowledge(next)
     }]};
   }
   if(kind==='encounter.conclude' || kind==='encounter.conclude.monster-withdrawal') {

@@ -26,7 +26,7 @@ try {
   await delay(350);
   const boot=await dumpPage('');
   if(!boot.includes('data-boot-status="ready"') ||
-    !boot.includes('B/X reciprocal disposition boundary ready.') ||
+    !boot.includes('B/X pursuit-decision boundary ready.') ||
     !boot.includes('Sample Fighter') || !boot.includes('4/4') ||
     !boot.includes('6 turns remaining'))throw Error(`Browser boot smoke failed: ${boot.slice(-1200)}`);
   const probe=await dumpPage('tests/browser-probe.html');
@@ -60,6 +60,10 @@ try {
   if(!progress.includes('data-smoke-status="passed"') ||
     !progress.includes('Roadmap widget revision, full-vision 19%, 21 gates and phase basis passed.'))
     throw Error(`Full-vision roadmap browser smoke failed: ${progress.slice(0,2000)}`);
+  const pursued=await dumpPage('tests/pursuit-browser-probe.html');
+  if(!pursued.includes('data-smoke-status="passed"') ||
+    !pursued.includes('B/X pursuit choice, no simulated movement, legacy saves and refusal passed.'))
+    throw Error(`Pursuit decision Chrome smoke failed: ${pursued.slice(0,1750)}`);
   console.log('Browser smoke passed: boot, encounter, both dispositions, save/load and authoritative 19% full-vision roadmap.');
 
 } finally {server.kill();}
