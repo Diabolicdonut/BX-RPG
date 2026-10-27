@@ -118,6 +118,7 @@ Phases may progress in parallel **only** when prerequisites are met and nonconfl
 
 ## 7. Revision and scope change log (newest first)
 
+- **2026-10-27 · Governance acceptance (no rules version bump):** PR #19 merged roadmap + manifest + webpage link as `2047d4d8f64219524b317a0871c9f47dc4d23f3c`. Its tested candidate `3ffe3153aca179855b106c8c58b2095f22051a83` passed **76/76 Node plus real Chrome** (`40521445296`); qualification `c7b76b14e3bef6ac0cc5f39f947f8a6144d57ec4` passed `40521756691`; exact merged-main Node/Chrome `40521927723` and Pages `40521927048` succeeded. Original B/X gameplay remains v0.1.7. Next rules checkpoint v0.1.8.
 - **2026-10-27 · Governance revision 1:** expanded the previous limited 36-point-earned bounded-delivery roadmap into **21 full-vision gates / 100 points**. Rebased verified foundational scope to **19%** without removing any accepted functionality; preserved separate **6/9** public-demo phase counter. Added synchronized machine-readable mirror and CI/Chrome status checks. This is *roadmap/infrastructure governance*, **not** v0.1.8 rules implementation.
 - **2026-10-27 · Prior accepted rules checkpoint v0.1.7:** two evidence-gated public withdrawal dispositions (Moldvay B23/B24), save schema v8, accepted through PRs #15–16 with full Node/Chrome and Pages validation. Consult `audit.md` for exact commit/workflow facts.
 
