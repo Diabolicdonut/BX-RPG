@@ -2,6 +2,8 @@
 
 ## 2026-10-27 — Full-vision roadmap governance candidate (NOT a B/X rules milestone)
 
+**Qualification evidence:** PR #19 executable/governance candidate `3ffe3153aca179855b106c8c58b2095f22051a83` passed Actions `40521445296`: **76/76 Node**, real Chrome existing full B/X demos and new roadmap/revision/19%-of-full-scope widget, server JSON/Markdown integration, syntax and committed-secret checks. Earlier CI `40521185523` failed Chrome only because the legacy development HTTP server prohibited `.json` and `.md` requests; server MIME/allowlist was repaired without game-rule changes. **Still awaiting documentation qualification CI, merge and exact-main/Pages validation.**
+
 Added authoritative `DEVELOPMENT-ROADMAP.md` to govern the complete B/X browser RPG vision, source rules, implementation phases, 21 weighted exit gates, AI worker isolation, CI/Pages acceptance, and future change logging. Reset indicator denominator from **old scoped 36%** to **19% of full long-term vision** with six narrowly accepted demonstration gates; retained separate **6/9** demo phase. `site-progress.json` remains a checked 1:1 read-only projection, not a second set of product requirements. New Node gate consistency tests and a real Chrome widget probe must pass before merging. **Current accepted game build stays v0.1.7; v0.1.8 pursuit work is unchanged.** Source and repo isolation preserved.
 
 
