@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "BX-RPG",
   "asOf": "2026-10-27",
-  "revision": "v0.1.7",
+  "revision": "v0.1.8",
   "revisionSource": {
     "type": "text",
     "file": "pipeline-state.md",
@@ -32,7 +32,7 @@
       },
       {
         "id": "g02",
-        "label": "Seeded dice and exact versioned save migration (v1–v8)",
+        "label": "Seeded dice and exact versioned save migration (v1–v9)",
         "weight": 4,
         "status": "accepted",
         "evidence": "src/state/rng.js; src/state/storage.js; tests"
@@ -77,7 +77,7 @@
         "label": "Full encounter reactions, movement, evasion and pursuit",
         "weight": 6,
         "status": "partial",
-        "evidence": "Next v0.1.8; existing cases do not satisfy general encounter rules"
+        "evidence": "v0.1.8 bounded pursuit choice verified; reactions, movement and outcomes outstanding"
       },
       {
         "id": "g09",

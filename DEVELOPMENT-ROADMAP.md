@@ -1,6 +1,6 @@
 # B/X RPG — Authoritative Development Roadmap
 
-**Project:** `Diabolicdonut/BX-RPG` · **Governance revision:** 1 (2026-10-27) · **Last fully accepted game revision:** **v0.1.7** · **Next engine checkpoint:** **v0.1.8**.
+**Project:** `Diabolicdonut/BX-RPG` · **Governance revision:** 1 (2026-10-27) · **Last fully accepted game revision:** **v0.1.8** · **Next engine checkpoint:** **v0.1.9**.
 
 > **This is the repository's authoritative LONG-TERM PRODUCT ROADMAP and development instructions.** All humans and AI development agents must read it together with `AGENTS.md`, the newest accepted entry in `audit.md`, `pipeline-state.md`, and current `main` before changing the game. GitHub's newest validated accepted code and audit remain authoritative for *what actually exists*. This document governs the desired end state, scope, work sequencing, evidence requirements and weighted progress. Disagreement is a blocking issue to reconcile, **never permission to silently overwrite accepted code**.
 
@@ -41,13 +41,13 @@ Client-only GitHub Pages is suitable for the current **public demonstration** bu
 | Gate | Deliverable (full denominator) | Weight | Status | Recorded evidence / limitation |
 |---|---|---:|---|---|
 | G01 | Deterministic intent and state boundary (demo scope) | 4 | accepted | src/state/state.js; tests/foundation.test.mjs |
-| G02 | Seeded dice and exact versioned save migration (v1–v8) | 4 | accepted | src/state/rng.js; src/state/storage.js; tests |
+| G02 | Seeded dice and exact versioned save migration (v1–v9) | 4 | accepted | src/state/rng.js; src/state/storage.js; tests |
 | G03 | Basic dungeon clock and six-turn torch demonstration | 3 | accepted | src/state/state.js; tests/exploration-turn.test.mjs |
 | G04 | Bounded wandering encounter and distance demonstration | 3 | accepted | src/content/encounters/level1-goblin.js; tests/encounter-contact.test.mjs |
 | G05 | Surprise, sight and player-information demonstration | 3 | accepted | tests/surprise.test.mjs; tests/perception.test.mjs |
 | G06 | Two evidence-gated nonpursuit demonstration outcomes | 2 | accepted | tests/disposition.test.mjs; tests/monster-withdrawal.test.mjs |
 | G07 | Complete B/X dungeon exploration, hazards and resource loop | 7 | planned | Acceptance plan below; not yet implemented |
-| G08 | Full encounter reactions, movement, evasion and pursuit | 6 | partial | Next v0.1.8; existing cases do not satisfy general encounter rules |
+| G08 | Full encounter reactions, movement, evasion and pursuit | 6 | partial | v0.1.8 bounded pursuit choice verified; reactions, movement and outcomes outstanding |
 | G09 | B/X combat, initiative, morale, saves and conditions | 8 | planned | Acceptance plan below; not yet implemented |
 | G10 | Seven B/X classes, creation, equipment and advancement | 7 | planned | Acceptance plan below; demo fighter is not character generation |
 | G11 | Complete Basic and Expert spellcasting and magical effects | 6 | planned | Acceptance plan below; not yet implemented |
@@ -103,7 +103,7 @@ Phases may progress in parallel **only** when prerequisites are met and nonconfl
 
 ### Current immediate dependency (preserve accepted GitHub controller)
 
-**Next:** `v0.1.8` — source-bounded pursuit decision and encounter-continuation evidence from Moldvay Basic p. B24. Inspect `pipeline-state.md` and latest audit for any newer accepted checkpoint before starting. Do **not** implement initiative, reaction, combat, generated adventure contents or hidden-AI security as an accidental side effect of this checkpoint.
+**Next:** `v0.1.9` — bounded source-verified movement/rate prerequisites for a *pending* B24 pursuit, without asserting any completed chase. Inspect `pipeline-state.md` and latest audit for any newer accepted checkpoint before starting. Do **not** infer pursuit resolution, initiative, reactions, combat, generated adventures or hidden-AI security from the pending pursuit-decision evidence.
 
 ## 6. Rules for all development workers
 
@@ -118,7 +118,7 @@ Phases may progress in parallel **only** when prerequisites are met and nonconfl
 
 ## 7. Revision and scope change log (newest first)
 
-- **2026-10-27 · v0.1.8 implementation candidate (not accepted yet):** B24 public monster withdrawal / party pursues election is recorded as *unresolved* on a separate work branch. Preserves all authoritative dice, time, light and knowledge, introduces schema v9 and strict v8→v9 migration. CI `40568068514` passed 84/84 Node and real Chrome. G08 remains **partial and zero credited**; full vision **19%** unchanged. After verified main acceptance, promote this entry, revise accepted version to v0.1.8 and update the `site-progress.json` mirror and website tests together; proposed next dependency v0.1.9 limited to pursuit speed/rate prerequisites.
+- **2026-10-27 · v0.1.8 FULLY ACCEPTED:** B24 monsters-withdraw/party-elects-pursuit is recorded as an **unresolved**, visible-target-gated decision. No dice, turn, light, forced chase, escape or capture. Save schema v9 migrates v1–v8 exactly and refuses historical pursuit forgery. PR #21 merged at `1f8810096015c287775bbf452df1cbddb95c882f`, qualified Node 84/84 and real Chrome `40568426075`, exact-main Node/Chrome `40568623477` and Pages `40568559827` succeeded. **G08 remains partial**, so full-vision completion stays **19%**, unchanged by this narrowly accepted slice. Next **v0.1.9**: source-backed pursuit movement/rate prerequisite; no claim of actual chase resolution.
 
 - **2026-10-27 · Governance acceptance (no rules version bump):** PR #19 merged roadmap + manifest + webpage link as `2047d4d8f64219524b317a0871c9f47dc4d23f3c`. Its tested candidate `3ffe3153aca179855b106c8c58b2095f22051a83` passed **76/76 Node plus real Chrome** (`40521445296`); qualification `c7b76b14e3bef6ac0cc5f39f947f8a6144d57ec4` passed `40521756691`; exact merged-main Node/Chrome `40521927723` and Pages `40521927048` succeeded. Original B/X gameplay remains v0.1.7. Next rules checkpoint v0.1.8.
 - **2026-10-27 · Governance revision 1:** expanded the previous limited 36-point-earned bounded-delivery roadmap into **21 full-vision gates / 100 points**. Rebased verified foundational scope to **19%** without removing any accepted functionality; preserved separate **6/9** public-demo phase counter. Added synchronized machine-readable mirror and CI/Chrome status checks. This is *roadmap/infrastructure governance*, **not** v0.1.8 rules implementation.
