@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "project": "BX-RPG",
+  "asOf": "2026-10-26",
+  "revision": "v0.1.7",
+  "revisionSource": {
+    "type": "text",
+    "file": "pipeline-state.md",
+    "pattern": "\\*\\*v([0-9.]+) FULLY ACCEPTED",
+    "prefix": "v"
+  },
+  "progress": {
+    "label": "B/X public demonstration gates",
+    "completed": 6,
+    "total": 9,
+    "basis": "Recorded public fixtures: dungeon turns, lighting and resources, wandering contact, surprise, observed identities and encounter withdrawal. Remaining: live combat, connected AI referee and full adventure play.",
+    "note": "These are scoped demonstration gates, not completion of the full B/X ruleset."
+  }
+}
