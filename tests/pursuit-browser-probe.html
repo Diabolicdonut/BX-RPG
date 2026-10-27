@@ -1,0 +1,53 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>B/X v0.1.8 pursuit-decision probe</title></head>
+<body data-smoke-status="pending"><iframe id="game" src="../index.html" title="B/X game"></iframe>
+<pre id="result">Waiting...</pre><script type="module">
+import {createDemoState} from '../src/state/state.js';
+import {SAVE_KEY} from '../src/state/storage.js';
+const frame=document.getElementById('game');
+const end=(status,text)=>{document.body.dataset.smokeStatus=status;document.getElementById('result').textContent=text;};
+let started=false;const timer=setInterval(()=>{
+  const doc=frame.contentDocument;
+  if(started||doc?.getElementById('app')?.dataset.bootStatus!=='ready')return;
+  started=true;clearInterval(timer);
+  try{
+    const check=(ok,msg)=>{if(!ok)throw Error(msg);};
+    const value=id=>doc.getElementById(id).textContent;
+    const send=x=>{doc.getElementById('command').value=x;
+      doc.getElementById('command-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));};
+    frame.contentWindow.localStorage.setItem(SAVE_KEY,JSON.stringify(createDemoState(61)));
+    doc.getElementById('load').click();
+    send('record public demo pursuit choice');
+    check(value('revision')==='0','premature chase proposal accepted');
+    for(const command of ['we rest for one turn','we rest for one turn','establish pending encounter',
+      'adjudicate surprise','assess encounter visibility','handoff encounter'])send(command);
+    check(value('encounter')==='Awaiting referee · Goblin visible within torchlight','fixture setup wrong');
+    send('record public demo pursuit choice');
+    check(value('encounter')==='Pursuit choice recorded · awaiting referee · Goblin visible within torchlight',
+      'unresolved pursuit not displayed');
+    check(value('revision')==='7'&&value('turns')==='2'&&value('draws')==='5','recording altered time/RNG');
+    check(value('light').includes('4 turns remaining'),'unexpected light consumption');
+    const narration=doc.getElementById('log').firstElementChild.textContent;
+    check(narration.includes('remains unresolved'),'narration claimed a completed chase');
+    doc.getElementById('save').click();
+    const saved=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
+    check(saved.schemaVersion===9&&saved.activeEncounter.stage==='awaiting-pursuit-adjudication',
+      'pursuit decision not serialized');
+    doc.getElementById('reset').click();doc.getElementById('load').click();
+    check(value('encounter').startsWith('Pursuit choice recorded'),'saved decision was not restored');
+    send('record public demo pursuit choice');send('we rest for one turn');
+    send('resolve public demo monster withdrawal');send('roll d6');
+    check(value('revision')==='7'&&value('turns')==='2'&&value('draws')==='5',
+      'unsupported resolution or diagnostic mutated pending state');
+    frame.contentWindow.localStorage.setItem(SAVE_KEY,JSON.stringify(createDemoState(1)));
+    doc.getElementById('load').click();
+    for(const c of ['we rest for one turn','we rest for one turn','establish pending encounter',
+      'adjudicate surprise','assess encounter visibility','handoff encounter','record public demo pursuit choice'])send(c);
+    check(value('encounter')==='Awaiting referee · No confirmed sighting',
+      'unknown distant contact was incorrectly actionable');
+    check(value('revision')==='6'&&value('draws')==='5'&&value('turns')==='2',
+      'failed distance choice changed resources');
+    end('passed','B/X pursuit choice, no simulated movement, legacy saves and refusal passed.');
+  }catch(error){end('failed',String(error.stack||error));}
+},25);
+setTimeout(()=>{if(!started){clearInterval(timer);end('failed','Game never booted');}},5000);
+</script></body></html>
