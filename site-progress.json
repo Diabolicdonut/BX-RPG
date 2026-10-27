@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "BX-RPG",
-  "asOf": "2026-10-26",
+  "asOf": "2026-10-27",
   "revision": "v0.1.7",
   "revisionSource": {
     "type": "text",
@@ -15,5 +15,90 @@
     "total": 9,
     "basis": "Recorded public fixtures: dungeon turns, lighting and resources, wandering contact, surprise, observed identities and encounter withdrawal. Remaining: live combat, connected AI referee and full adventure play.",
     "note": "These are scoped demonstration gates, not completion of the full B/X ruleset."
+  },
+  "roadmap": {
+    "label": "Full approved B/X RPG delivery roadmap",
+    "scope": "Bounded B/X Moldvay/Cook source-faithful conversational RPG release: legal exploration, encounters, spells, characters, integrated AI referee and complete play. It is not the Known World BECMI implementation.",
+    "document": "ROADMAP-COVERAGE.md",
+    "note": "Weighted, accepted-gates-only planning progress; partial gates earn zero until accepted. Existing milestone/phase percentage is separately preserved.",
+    "gates": [
+      {
+        "id": "deterministic-boundary",
+        "label": "Source-faithful B/X deterministic engine and save migration",
+        "weight": 8,
+        "status": "accepted",
+        "evidence": "README.md; pipeline-state.md"
+      },
+      {
+        "id": "exploration-clock",
+        "label": "Dungeon turns, torchlight and supplies",
+        "weight": 8,
+        "status": "accepted",
+        "evidence": "pipeline-state.md; src"
+      },
+      {
+        "id": "encounter-contact",
+        "label": "Wandering encounter establishment",
+        "weight": 7,
+        "status": "accepted",
+        "evidence": "pipeline-state.md"
+      },
+      {
+        "id": "surprise-and-knowledge",
+        "label": "Surprise, observation and public identity gating",
+        "weight": 7,
+        "status": "accepted",
+        "evidence": "pipeline-state.md"
+      },
+      {
+        "id": "documented-withdrawal",
+        "label": "Evidence-bound party and monster nonpursuit demonstrations",
+        "weight": 6,
+        "status": "accepted",
+        "evidence": "pipeline-state.md"
+      },
+      {
+        "id": "encounter-continuation",
+        "label": "Generalized reactions, pursuit and encounter continuation",
+        "weight": 10,
+        "status": "partial",
+        "evidence": "pipeline-state.md (next v0.1.8)"
+      },
+      {
+        "id": "combat-and-experience",
+        "label": "Combat, damage, rewards and advancement under B/X",
+        "weight": 14,
+        "status": "planned",
+        "evidence": "README.md; pipeline-state.md"
+      },
+      {
+        "id": "classes-magic",
+        "label": "Complete classes, saves, magic and spell resources",
+        "weight": 12,
+        "status": "planned",
+        "evidence": "README.md"
+      },
+      {
+        "id": "wilderness-modules",
+        "label": "Validated adventure maps, wilderness, module integration and full play",
+        "weight": 11,
+        "status": "planned",
+        "evidence": "README.md"
+      },
+      {
+        "id": "private-ai-referee",
+        "label": "Connected and secure AI referee for flexible intent and narration",
+        "weight": 10,
+        "status": "planned",
+        "evidence": "README.md"
+      },
+      {
+        "id": "release-qa",
+        "label": "Real desktop/mobile end-to-end adventure QA and documentation",
+        "weight": 7,
+        "status": "partial",
+        "evidence": "README.md; .github/workflows/ci.yml"
+      }
+    ]
   }
 }
