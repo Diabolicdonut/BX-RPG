@@ -1,5 +1,12 @@
 # Acceptance audit (newest first)
 
+## v0.1.9 — QUALIFIED CANDIDATE (not accepted) — B19/B24 rate prerequisite
+
+Original Moldvay Basic (1981) B19/B20 character encumbrance bands and movement table, B24 running and pursuit rate, B53 goblin 60' per turn (20'/encounter round). New source-rate module independently tests 4 exact B19 categories, unestablished gear refusal and fixed goblin rate; strict public rate-review evidence on a prior v0.1.8 pending pursuit records `awaiting-party-rate-evidence`. **No inferred sample-fighter encumbrance, no chase, no movement, no RNG/time/light/HP changes, no victory, no monster-secret UI leak.** Schema v10 migrates v1–v9; historic v9 cannot forge rate-event stage. Gate G08 remains partial; full roadmap 19%.
+
+Candidate feature/tests SHA `9727677097db8fa1e3218214ea8852c66e7df15c` passed Actions `40605577723`: **91/91 Node** and real Chrome including new save/load/refusal-rate browser probe, all earlier mechanics/progress probes, syntax and forbidden secret scans. First candidate CI failed a syntax-parenthesis issue in validator; next candidate failed one inherited v9 migration test expectation. Both were corrected; no rule validation weakened. PR #23 remains awaiting qualified-documentation CI and merge before accepted main/Pages verification. Next tentative checkpoint v0.1.10 is bounded party equipment/encumbrance provenance, not chase resolution.
+
+
 ## v0.1.8 — FULLY ACCEPTED — recorded pursuit election (G08 partial)
 
 **Authority / G08 partial:** Original Moldvay Basic (1981) p. B24 supports the party deciding whether to pursue evading creatures. This *public authored demo* adds only an independently verified monster-withdrawal + party-pursuit election for an established visible target. It transitions to an unresolved `awaiting-pursuit-adjudication` stage, with zero RNG/light/time/HP or encounter-outcome changes. All existing nonpursuit closures remain separate. The stage is documented in an exact, validated journal record; no running speed, distance, pursuit result, reactions, combat or private map is invented. v9 save schema migrates v1–v8; v8 cannot claim a v9 pursuit event.
