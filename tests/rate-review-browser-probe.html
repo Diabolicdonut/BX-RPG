@@ -1,0 +1,41 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>B/X v0.1.9 movement prerequisite</title></head>
+<body data-smoke-status="pending"><iframe id="game" src="../index.html" title="B/X RPG"></iframe><pre id="result">Waiting...</pre>
+<script type="module">
+import {createDemoState} from '../src/state/state.js';
+import {SAVE_KEY} from '../src/state/storage.js';
+const frame=document.getElementById('game'),end=(s,m)=>{document.body.dataset.smokeStatus=s;document.getElementById('result').textContent=m;};
+let started=false;const timer=setInterval(()=>{
+ const doc=frame.contentDocument;
+ if(started||doc?.getElementById('app')?.dataset.bootStatus!=='ready')return;
+ started=true;clearInterval(timer);
+ try{
+  const ok=(b,m)=>{if(!b)throw Error(m);};
+  const view=id=>doc.getElementById(id).textContent;
+  const send=v=>{doc.getElementById('command').value=v;doc.getElementById('command-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));};
+  frame.contentWindow.localStorage.setItem(SAVE_KEY,JSON.stringify(createDemoState(61)));
+  doc.getElementById('load').click();send('review public demo pursuit rates');
+  ok(view('revision')==='0','rate review accepted before chase');
+  for(const c of ['we rest for one turn','we rest for one turn','establish pending encounter','adjudicate surprise',
+    'assess encounter visibility','handoff encounter','record public demo pursuit choice'])send(c);
+  ok(view('encounter').startsWith('Pursuit choice recorded'),'pursuit did not prepare');
+  send('review public demo pursuit rates');
+  ok(view('encounter')==='Pursuit rates reviewed · party equipment unestablished','missing rate not shown');
+  ok(view('revision')==='8'&&view('turns')==='2'&&view('draws')==='5','rate audit invented time or dice');
+  ok(view('light').includes('4 turns remaining'),'rate audit consumed torch');
+  const narrative=doc.getElementById('log').firstElementChild.textContent;
+  ok(narrative.includes('not established')&&narrative.includes('remain unresolved'),'incomplete rates claimed known');
+  ok(!narrative.includes('goblin')&&!narrative.includes('60 feet'),'monster-private speed leaked');
+  doc.getElementById('save').click();
+  const saved=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
+  ok(saved.schemaVersion===10&&saved.activeEncounter.stage==='awaiting-party-rate-evidence','v10 pending stage missing');
+  ok(saved.journal.at(-1).kind==='encounter.pursuit-rate-review','no terminal journal record');
+  doc.getElementById('reset').click();doc.getElementById('load').click();
+  ok(view('encounter').includes('party equipment unestablished'),'reload lost pending rate check');
+  for(const c of ['review public demo pursuit rates','record public demo pursuit choice','we rest for one turn',
+    'resolve public demo nonpursuit','roll d6'])send(c);
+  ok(view('revision')==='8'&&view('turns')==='2'&&view('draws')==='5','unsupported action mutated audited chase');
+  end('passed','Source-backed B19 rate audit, missing party gear and save refusals passed.');
+ }catch(e){end('failed',String(e.stack||e));}
+},25);
+setTimeout(()=>{if(!started){clearInterval(timer);end('failed','Game never booted');}},5000);
+</script></body></html>
