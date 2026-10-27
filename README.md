@@ -1,6 +1,6 @@
 # B/X RPG
 
-> **Roadmap scope review (2026-10-27):** The overall accepted project-delivery percentage is **36%** based on the [current evidence-backed 100-point roadmap](ROADMAP-COVERAGE.md). The site's older stage indicator remains separate. Future development must update the roadmap only with accepted functional evidence.
+> **Authoritative project roadmap (2026-10-27):** [DEVELOPMENT-ROADMAP.md](DEVELOPMENT-ROADMAP.md) governs the **entire long-term vision**, development phases, 21 evidence-gated milestones, AI-worker instructions and acceptance criteria. The full-vision weighted progress baseline is **19%**, strictly distinct from the old **36% limited-release estimate** and the **6/9 public demo-phase counter**. The webpage displays **Rev v0.1.7 · Roadmap 19%** from `pipeline-state.md` and synchronized `site-progress.json`. Update the roadmap and manifest in **every accepted checkpoint**; `tests/roadmap.test.mjs` prevents drift. No accepted features were undone by changing the denominator.
 
 A small, self-contained, browser-based, text-first RPG that reuses the **architectural ideas**, not the BECMI rules, of [Known World](https://github.com/Diabolicdonut/BECMI-Mystara). The eventual interface is natural-language conversation with an AI referee; a deterministic engine alone resolves rules, resources, dice, and campaign state.
 

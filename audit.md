@@ -1,5 +1,10 @@
 # Acceptance audit (newest first)
 
+## 2026-10-27 — Full-vision roadmap governance candidate (NOT a B/X rules milestone)
+
+Added authoritative `DEVELOPMENT-ROADMAP.md` to govern the complete B/X browser RPG vision, source rules, implementation phases, 21 weighted exit gates, AI worker isolation, CI/Pages acceptance, and future change logging. Reset indicator denominator from **old scoped 36%** to **19% of full long-term vision** with six narrowly accepted demonstration gates; retained separate **6/9** demo phase. `site-progress.json` remains a checked 1:1 read-only projection, not a second set of product requirements. New Node gate consistency tests and a real Chrome widget probe must pass before merging. **Current accepted game build stays v0.1.7; v0.1.8 pursuit work is unchanged.** Source and repo isolation preserved.
+
+
 ## v0.1.7 — FULLY ACCEPTED — public monster withdrawal without party pursuit
 
 **Source:** original Moldvay Basic (1981) **B24**, Evasion (monsters may evade; players decide whether to chase), and **B23**, encounter timing (up to 60 rounds counts as one dungeon turn). A SECOND exact and separately authored public demo establishes monster withdrawal, party declines pursuit, no combat and a one-round circumstance, distinct from v0.1.6's party withdrawal with monsters declining pursuit. The two exact operation kinds and their evidence packet identities must match. Both outcomes preserve authoritative one-turn and torch accounting, future B53 checks, validated archived contact, and known vs unknown player-visible information without inventing encounters, reactions, morale, initiative, victory or private adventure facts. Schema v8 retains v1–v7 save compatibility, rejects fabricated v8-only fate in v7 history. AI API remains disconnected; static client storage is inspectable.
