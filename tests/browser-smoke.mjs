@@ -26,7 +26,7 @@ try {
   await delay(350);
   const boot=await dumpPage('');
   if(!boot.includes('data-boot-status="ready"') ||
-    !boot.includes('B/X pursuit-rate prerequisite ready.') ||
+    !boot.includes('B/X public equipment evidence ready.') ||
     !boot.includes('Sample Fighter') || !boot.includes('4/4') ||
     !boot.includes('6 turns remaining'))throw Error(`Browser boot smoke failed: ${boot.slice(-1200)}`);
   const probe=await dumpPage('tests/browser-probe.html');
@@ -68,6 +68,10 @@ try {
   if(!rateReview.includes('data-smoke-status="passed"') ||
     !rateReview.includes('Source-backed B19 rate audit, missing party gear and save refusals passed.'))
     throw Error(`B19 pursuit rate Chrome probe failed: ${rateReview.slice(0,1700)}`);
+  const witnessed=await dumpPage('tests/equipment-browser-probe.html');
+  if(!witnessed.includes('data-smoke-status="passed"') ||
+    !witnessed.includes('Original B20 public equipment rate, save integrity and no chase passed.'))
+    throw Error(`Public B20 equipment Chrome smoke failed: ${witnessed.slice(0,1700)}`);
   console.log('Browser smoke passed: boot, encounter, both dispositions, save/load and authoritative 19% full-vision roadmap.');
 
 } finally {server.kill();}
