@@ -1,10 +1,10 @@
 # Acceptance audit (newest first)
 
-## v0.1.11 — QUALIFIED CANDIDATE — B24 running-round movement budget (G08 partial)
+## v0.1.11 — FULLY ACCEPTED — B24 running-round movement budget (G08 partial)
 
 **Source:** Original Moldvay Basic (1981) B19/B24 running/encounter speed and 30-round character maximum; B53 goblin public rate; already witnessed B20 170-cn illustrative fighter rate. A strict public fixture derives a **potential** 120-ft party and 60-ft goblin running budget for one hypothetical 10-second round. It proves neither map/path, continuous sight, round elapsed, movement nor outcome. A new typed intent validates all preceding pursuit/load facts, moves only administrative state into `awaiting-route-and-round-evidence`, and writes an exact canonical journal entry. State schema v12 migrates v1–v11 and rejects v11 data claiming v12-only budget evidence. Source private data is never narrated. G08 remains partial; full roadmap 19%.
 
-**Candidate verification:** SHA `9455ac808f372548836acd6baea3a2874302c137`, GitHub Actions `40701524225`: **107/107 Node and real Chrome**, including latest budget/save/refusal probe plus earlier encounter/roadmap checks. PR #27 has not yet completed documentation qualification, merge, exact-main checks and Pages deployment. Thus **not yet accepted**.
+**Candidate verification:** SHA `9455ac808f372548836acd6baea3a2874302c137`, GitHub Actions `40701524225`: **107/107 Node and real Chrome**, including latest budget/save/refusal probe plus earlier encounter/roadmap checks. PR #27 documentation-qualified head `c62ab531ad8d6786bc4755df41b45809f634a967` passed Actions `40701821048` (Node and Chrome). PR merged into main as `8f65816cdb5a6a32df55c19a74bd174937243c11`; exact-main Actions `40701993598` (Node and Chrome) and Pages `40701994779` both **SUCCESS**. The final closeout modifies only the roadmap/status/README/test revision expectations; no additional gameplay mechanics.
 
 
 ## v0.1.10 — FULLY ACCEPTED — B20 public equipment evidence
