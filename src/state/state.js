@@ -14,8 +14,9 @@ import {publicPursuitRateReview,validatePursuitRateReview} from '../rules/pursui
 import {publicPartyLoadEvidence,validatePublicPartyLoad,canonicalPartyLoad} from '../rules/equipment-evidence.js';
 import {publicPursuitRoundBudget,validatePublicPursuitRoundBudget} from '../rules/pursuit-round-budget.js';
 import {publicCorridorRouteEvidence,validatePublicCorridorRouteEvidence} from '../rules/pursuit-route.js';
+import {publicFirstPursuitRound,validateFirstPursuitRound} from '../rules/pursuit-first-round.js';
 
-export const SCHEMA_VERSION = 13;
+export const SCHEMA_VERSION = 14;
 const own = (o,k) => Object.prototype.hasOwnProperty.call(o,k);
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const exact = (v, keys) => object(v) && Object.keys(v).length === keys.length && keys.every(k=>own(v,k));
@@ -89,7 +90,8 @@ function validContact(e,s){
        e.stage==='awaiting-party-rate-evidence' ||
        e.stage==='awaiting-chase-adjudication' ||
        e.stage==='awaiting-route-and-round-evidence' ||
-       e.stage==='awaiting-first-pursuit-round-evidence') && validSurprise(e.surprise) &&
+       e.stage==='awaiting-first-pursuit-round-evidence' ||
+       e.stage==='awaiting-second-pursuit-round-evidence') && validSurprise(e.surprise) &&
       typeof e.evidenceId==='string' && knownPerceptionEvidence(e.evidenceId)!==null &&
       sameVisibility(e.visibility,derivePublicVisibility(
         knownPerceptionEvidence(e.evidenceId),s.light,e.distanceFeet))));
@@ -161,12 +163,26 @@ function validRouteRecord(e,s) {
     Number.isSafeInteger(e.dueTurn)&&e.dueTurn>=1&&e.dueTurn<=s.turns+1 &&
     e.routeId===publicCorridorRouteEvidence.id;
 }
+function validFirstRoundRecord(e,s) {
+  if(!exact(e,['kind','dueTurn','evidenceId','round','elapsedSeconds',
+      'partyMoveFeet','monsterMoveFeet','sightAfter','result']))return false;
+  const c=s.activeEncounter;
+  if(e.kind!=='encounter.pursuit-first-round'||!c||
+     e.dueTurn!==c.dueTurn||
+     e.evidenceId!==publicFirstPursuitRound.id||
+     e.round!==1||e.elapsedSeconds!==10||
+     e.partyMoveFeet!==publicFirstPursuitRound.partyMoveFeet||
+     e.monsterMoveFeet!==publicFirstPursuitRound.monsterMoveFeet||
+     e.sightAfter!=='visible'||e.result!=='unresolved')return false;
+  try {return validateFirstPursuitRound(publicFirstPursuitRound,c,s.light).sightAfter===e.sightAfter;}
+  catch {return false;}
+}
 function validPerceptionRecord(e,s) {
   return exact(e,['kind','dueTurn']) && e.kind==='encounter.perception' &&
     Number.isSafeInteger(e.dueTurn) && e.dueTurn>=1 && e.dueTurn<=s.turns+1;
 }
 function validEncounterTrail(s) {
-  const stage=s.activeEncounter?.stage, last=s.journal.at(-1),prev=s.journal.at(-2),before=s.journal.at(-3),fourth=s.journal.at(-4),fifth=s.journal.at(-5);
+  const stage=s.activeEncounter?.stage, last=s.journal.at(-1),prev=s.journal.at(-2),before=s.journal.at(-3),fourth=s.journal.at(-4),fifth=s.journal.at(-5),sixth=s.journal.at(-6);
   const due=s.activeEncounter?.dueTurn;
   const pursuit=e=>e?.kind==='encounter.pursuit-decision' &&
     e.dueTurn===due && e.evidenceId===monsterWithdrawalPursued.id;
@@ -180,6 +196,12 @@ function validEncounterTrail(s) {
     e.dueTurn===due && e.budgetId===publicPursuitRoundBudget.id;
   const routed=e=>e?.kind==='encounter.pursuit-route-established' &&
     e.dueTurn===due && e.routeId===publicCorridorRouteEvidence.id;
+  const advanced=e=>e?.kind==='encounter.pursuit-first-round'&&
+    validFirstRoundRecord(e,s)&&e.dueTurn===due;
+  if(stage==='awaiting-second-pursuit-round-evidence')
+    return s.activeEncounter.visibility.presence==='visible' &&
+      pursuit(sixth)&&reviewed(fifth)&&witnessed(fourth)&&budgeted(before)&&
+      routed(prev)&&advanced(last);
   if(stage==='awaiting-first-pursuit-round-evidence')
     return s.activeEncounter.visibility.presence==='visible' &&
       pursuit(fifth)&&reviewed(fourth)&&witnessed(before)&&budgeted(prev)&&
@@ -197,11 +219,11 @@ function validEncounterTrail(s) {
     return s.activeEncounter.visibility.presence==='visible'&&pursuit(last);
   return !['encounter.pursuit-decision','encounter.pursuit-rate-review',
     'encounter.party-load-established','encounter.pursuit-round-budget-reviewed',
-    'encounter.pursuit-route-established'].includes(last?.kind);
+    'encounter.pursuit-route-established','encounter.pursuit-first-round'].includes(last?.kind);
 }
 export function assertValidState(state) {
   if (!exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter','lastEncounter']) || state.schemaVersion!==SCHEMA_VERSION ||
-    !validShared(state) || !state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state)||validSurpriseRecord(e,state)||validPerceptionRecord(e,state)||validHandoffRecord(e,state)||validCloseRecord(e,state)||validPursuitRecord(e,state)||validRateRecord(e,state)||validEquipmentRecord(e,state)||validBudgetRecord(e,state)||validRouteRecord(e,state)) ||
+    !validShared(state) || !state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state)||validSurpriseRecord(e,state)||validPerceptionRecord(e,state)||validHandoffRecord(e,state)||validCloseRecord(e,state)||validPursuitRecord(e,state)||validRateRecord(e,state)||validEquipmentRecord(e,state)||validBudgetRecord(e,state)||validRouteRecord(e,state)||validFirstRoundRecord(e,state)) ||
     !exact(state.light,['kind','remainingTurns']) ||
     !['torch','none'].includes(state.light.kind) ||
     !Number.isInteger(state.light.remainingTurns) || state.light.remainingTurns<0 ||
@@ -222,6 +244,17 @@ export function assertValidState(state) {
 // Exact historical save migrations: no new dice rolls, visibility, or resources.
 export function migrateSaveState(state) {
   if(state?.schemaVersion===SCHEMA_VERSION)return assertValidState(state);
+  if(exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter','lastEncounter']) &&
+    state.schemaVersion===13 && validShared(state) &&
+    state.activeEncounter?.stage!=='awaiting-second-pursuit-round-evidence' &&
+    state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||
+      validContactRecord(e,state)||validSurpriseRecord(e,state)||
+      validPerceptionRecord(e,state)||validHandoffRecord(e,state)||
+      validCloseRecord(e,state)||validPursuitRecord(e,state)||
+      validRateRecord(e,state)||validEquipmentRecord(e,state)||
+      validBudgetRecord(e,state)||validRouteRecord(e,state))) {
+    return assertValidState({...state,schemaVersion:SCHEMA_VERSION});
+  }
   if(exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter','lastEncounter']) &&
     state.schemaVersion===12 && validShared(state) &&
     state.activeEncounter?.stage!=='awaiting-first-pursuit-round-evidence' &&
@@ -345,6 +378,7 @@ function validProposal(state,p) {
   if (exact(op,['kind']) && op.kind==='encounter.surprise') return 'encounter.surprise';
   if (exact(op,['kind']) && op.kind==='encounter.perceive') return 'encounter.perceive';
   if (exact(op,['kind']) && op.kind==='encounter.handoff') return 'encounter.handoff';
+  if (exact(op,['kind']) && op.kind==='encounter.pursuit-first-round') return 'encounter.pursuit-first-round';
   if (exact(op,['kind']) && op.kind==='encounter.pursuit-route-establish') return 'encounter.pursuit-route-establish';
   if (exact(op,['kind']) && op.kind==='encounter.pursuit-round-budget-review') return 'encounter.pursuit-round-budget-review';
   if (exact(op,['kind']) && op.kind==='encounter.party-load-establish') return 'encounter.party-load-establish';
@@ -360,13 +394,14 @@ export function executeProposal(state,proposal,encounterPacket=levelOneGoblinCon
   rateReview=publicPursuitRateReview,
   partyLoad=publicPartyLoadEvidence,
   roundBudget=publicPursuitRoundBudget,
-  routeEvidence=publicCorridorRouteEvidence) {
+  routeEvidence=publicCorridorRouteEvidence,
+  firstRoundEvidence=publicFirstPursuitRound) {
   assertValidState(state);
   const kind=validProposal(state,proposal);
   if (!kind) return {accepted:false,state,outcomes:[],error:'Unsupported or stale proposal'};
   if (kind==='dungeon.rest' && (state.pendingEncounter||state.activeEncounter))
     return {accepted:false,state,outcomes:[],error:'Encounter adjudication is required before another turn'};
-  if (kind==='diagnostic.roll' && ['awaiting-pursuit-adjudication','awaiting-party-rate-evidence','awaiting-chase-adjudication','awaiting-route-and-round-evidence','awaiting-first-pursuit-round-evidence'].includes(state.activeEncounter?.stage))
+  if (kind==='diagnostic.roll' && ['awaiting-pursuit-adjudication','awaiting-party-rate-evidence','awaiting-chase-adjudication','awaiting-route-and-round-evidence','awaiting-first-pursuit-round-evidence','awaiting-second-pursuit-round-evidence'].includes(state.activeEncounter?.stage))
     return {accepted:false,state,outcomes:[],error:'Pursuit needs referee adjudication first'};
   if (kind==='diagnostic.roll') {
     const roll=rollDie(state.rng,6);
@@ -471,6 +506,44 @@ export function executeProposal(state,proposal,encounterPacket=levelOneGoblinCon
       kind:'encounter.handoff',
       knowledge:projectPlayerEncounterKnowledge(next),
       stage:'awaiting-referee'
+    }]};
+  }
+  if(kind==='encounter.pursuit-first-round') {
+    const contact=state.activeEncounter;
+    if(!contact || contact.stage!=='awaiting-first-pursuit-round-evidence')
+      return {accepted:false,state,outcomes:[],error:'No verified first pursuit round pending'};
+    let derived;
+    try {
+      validateEncounterPacket(encounterPacket);
+      validatePublicCorridorRouteEvidence(routeEvidence,contact);
+      derived=validateFirstPursuitRound(firstRoundEvidence,contact,state.light);
+      if(contact.packetId!==encounterPacket.id ||
+        contact.monster!==encounterPacket.monster ||
+        contact.numberAppearing!==encounterPacket.numberAppearing ||
+        contact.dueTurn!==state.turns+1 ||
+        state.character.id!==derived.evidence.characterId ||
+        routeEvidence.id!==derived.evidence.routeId)
+        throw Error('First-round witness does not match public pursuit');
+    } catch {
+      return {accepted:false,state,outcomes:[],error:'Unsupported first-round motion or line-of-sight evidence'};
+    }
+    // B23: round time counts inside an unresolved encounter. No ten-minute
+    // dungeon turn or torch-turn is consumed until encounter closure.
+    const event={kind:'encounter.pursuit-first-round',dueTurn:contact.dueTurn,
+      evidenceId:derived.evidence.id,round:1,
+      elapsedSeconds:derived.evidence.secondsElapsed,
+      partyMoveFeet:derived.evidence.partyMoveFeet,
+      monsterMoveFeet:derived.evidence.monsterMoveFeet,
+      sightAfter:derived.sightAfter,result:'unresolved'};
+    const next={...state,revision:state.revision+1,
+      activeEncounter:{...contact,stage:'awaiting-second-pursuit-round-evidence'},
+      journal:[...state.journal,event].slice(-20)};
+    assertValidState(next);
+    return {accepted:true,state:next,outcomes:[{
+      kind:event.kind,round:1,elapsedSeconds:event.elapsedSeconds,
+      partyMoveFeet:event.partyMoveFeet,
+      sightAfter:event.sightAfter,result:event.result,
+      knowledge:projectPlayerEncounterKnowledge(next)
     }]};
   }
   if(kind==='encounter.pursuit-route-establish') {
