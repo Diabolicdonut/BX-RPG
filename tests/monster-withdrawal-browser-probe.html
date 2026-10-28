@@ -30,7 +30,7 @@ let tried=false;const ticker=setInterval(()=>{
     check(!narration.includes('goblin')&&!narration.includes('30 feet'),'private details leaked');
     doc.getElementById('save').click();
     const saved=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
-    check(saved.schemaVersion===14&&saved.activeEncounter===null &&
+    check(saved.schemaVersion===15&&saved.activeEncounter===null &&
       saved.lastEncounter.disposition==='monsters-withdrew-unpursued','wrong archived fate');
     check(saved.lastEncounter.contact.visibility.identity==='goblin','knowledge not preserved');
     doc.getElementById('reset').click();doc.getElementById('load').click();

@@ -1,0 +1,55 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>B/X second actual pursuit round</title></head>
+<body data-smoke-status="pending"><iframe id="game" src="../index.html" title="B/X RPG"></iframe><pre id="result">Waiting...</pre><script type="module">
+import {createDemoState} from '../src/state/state.js';
+import {SAVE_KEY} from '../src/state/storage.js';
+const frame=document.getElementById('game');
+const end=(s,m)=>{document.body.dataset.smokeStatus=s;document.getElementById('result').textContent=m;};
+let started=false;const timer=setInterval(()=>{
+ const doc=frame.contentDocument;
+ if(started||doc?.getElementById('app')?.dataset.bootStatus!=='ready')return;
+ started=true;clearInterval(timer);
+ try {
+  const ok=(b,m)=>{if(!b)throw Error(m);};
+  const val=k=>doc.getElementById(k).textContent;
+  const send=cmd=>{doc.getElementById('command').value=cmd;
+    doc.getElementById('command-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));};
+  frame.contentWindow.localStorage.setItem(SAVE_KEY,JSON.stringify(createDemoState(61)));
+  doc.getElementById('load').click();
+  send('advance public demo second pursuit round');
+  ok(val('revision')==='0','premature second-round claim accepted');
+  for(const cmd of ['we rest for one turn','we rest for one turn','establish pending encounter',
+    'adjudicate surprise','assess encounter visibility','handoff encounter',
+    'record public demo pursuit choice','review public demo pursuit rates',
+    'establish public demo party load','review public demo pursuit round budget',
+    'establish public demo pursuit corridor','advance public demo first pursuit round'])send(cmd);
+  ok(val('encounter')==='Pursuit round 1 recorded · target still visible · unresolved',
+    'first running round missing');
+  send('advance public demo second pursuit round');
+  ok(val('encounter')==='Pursuit round 2 recorded · corridor end awaits referee','second round missing');
+  ok(val('revision')==='13'&&val('turns')==='2'&&val('draws')==='5','second round mutated dungeon clock/dice');
+  ok(val('light').includes('4 turns remaining'),'second round consumed torch turn');
+  const narrative=doc.getElementById('log').firstElementChild.textContent;
+  ok(narrative.includes('second independently witnessed ten-second running round')&&
+    narrative.includes('another 60 feet')&&
+    narrative.includes('Twenty encounter seconds')&&
+    narrative.includes('fleeing creature still visible')&&
+    narrative.includes('corridor end now requires further adjudication'),
+    'second-round evidence/limit not conveyed');
+  ok(!narrative.includes('goblin')&&!narrative.includes('monsterPositionFeet'),'private monster location leaked');
+  doc.getElementById('save').click();
+  const saved=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
+  ok(saved.schemaVersion===15&&saved.activeEncounter.stage==='awaiting-third-pursuit-round-boundary','v15 stage missing');
+  ok(saved.journal.at(-1).round===2&&saved.journal.at(-1).elapsedSeconds===10&&
+    saved.journal.at(-1).totalEncounterSeconds===20&&
+    saved.journal.at(-1).partyMoveFeet===60&&saved.journal.at(-1).monsterMoveFeet===60&&
+    saved.journal.at(-1).result==='unresolved','second-round source facts missing');
+  doc.getElementById('reset').click();doc.getElementById('load').click();
+  ok(val('encounter')==='Pursuit round 2 recorded · corridor end awaits referee','reload lost second round');
+  for(const cmd of ['advance public demo second pursuit round','advance public demo first pursuit round',
+    'we rest for one turn','roll d6','resolve public demo nonpursuit','catch them'])send(cmd);
+  ok(val('revision')==='13'&&val('turns')==='2'&&val('draws')==='5','invalid round changed state');
+  end('passed','Two genuine B24 chase rounds, twenty seconds, saved without a capture passed.');
+ }catch(e){end('failed',String(e.stack||e));}
+},25);
+setTimeout(()=>{if(!started){clearInterval(timer);end('failed','Game never booted');}},5000);
+</script></body></html>

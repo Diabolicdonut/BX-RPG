@@ -33,7 +33,7 @@ let started=false;const interval=setInterval(()=>{
   ok(!narration.includes('goblin')&&!narration.includes('60 feet'),'monster-rate leak');
   doc.getElementById('save').click();
   const saved=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
-  ok(saved.schemaVersion===14&&saved.activeEncounter.stage==='awaiting-route-and-round-evidence',
+  ok(saved.schemaVersion===15&&saved.activeEncounter.stage==='awaiting-route-and-round-evidence',
     'v12 state wrong');
   ok(saved.journal.at(-1).kind==='encounter.pursuit-round-budget-reviewed' &&
     !('rounds' in saved.journal.at(-1)), 'budget record incorrectly logs elapsed rounds');

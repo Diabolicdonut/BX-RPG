@@ -1,5 +1,12 @@
 # Acceptance audit (newest first)
 
+## v0.1.14 — QUALIFIED CANDIDATE — two actual B/X running rounds, no fabricated capture
+
+Original Moldvay Basic B19/B23/B24 running/time procedures; *independent original public scene* evidence confirms an additional 60-ft party and monster movement along the same straight, lit and unobstructed corridor in a second ten-second round. Internally the party is 120 ft along the 180-ft corridor, monster initial seeded separation +120 ft (at most 150 ft), preserved separation/sight, and the chase is **unresolved**; upcoming corridor boundary requires new evidence. The journal records exact 2nd round and 20 cumulative encounter seconds, not private monster coordinates. No dungeon turn/torch, dice, HP, capture or escape invented. Schema v15 exact migration v1–v14; forged history refused. G08 remains partial, 19% full vision.
+
+Initial candidate failed JavaScript parsing due to missing stage-expression parenthesis, corrected without weakening validators. Tested source head `e2a3b3f09991181761ea43cca4693386922131d8`, Actions `40727766246`: **129/129 Node + real Chrome**. PR #33 remains subject to docs qualification, merge, exact-main CI and Pages before acceptance.
+
+
 ## v0.1.13 — FULLY ACCEPTED — one actual B/X pursuit round (G08 partial)
 
 Original Moldvay Basic B19/B23/B24/B53 provides source running speeds, ten-second encounter rounds, and short encounter dungeon-time accounting. An independently authored public fixture—not an official map or AI referee decision—documents a deliberately selected 60-ft fighter pace, 60-ft goblin movement, clear 120-ft corridor span and continued torchlit sight. One actual round (10 sec) records each side moving 60 ft, with no automatic catch/escape, additional dungeon/torch turn, combat, RNG or HP change. New stage awaiting-second-pursuit-round-evidence and exact journal; save schema v14 migrates v1–v13 with forged-history refusal. Feature/test SHA 68230d5cfdb0c2beff50a0c19353524855fd3a52 passed Actions 40725768046 (**122/122 Node plus real Chrome**). PR #31 qualified-docs `8610b1d452266ae2d23b6e4e6b1a708e2d87d766` Actions `40726161021` succeeded; merged as `4ef9ad6b374d063e4aa22d498e1650f694e5bf59`. Exact-main Node/Chrome `40726302397` and Pages `40726303289` **SUCCESS**. Final docs closeout changes only roadmap/manifest and revision tests, not engine behavior.
