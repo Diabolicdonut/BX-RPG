@@ -119,7 +119,7 @@ test('exact v7 old concluded save migrates without altering fate, and rejects v8
   const s=close(ready(),'encounter.conclude').state;
   const historical={...s,schemaVersion:7};
   const migrated=decodeSave(JSON.stringify(historical));
-  assert.equal(migrated.schemaVersion,11);
+  assert.equal(migrated.schemaVersion,12);
   assert.deepEqual(migrated.lastEncounter,s.lastEncounter);
   assert.deepEqual(migrated.rng,s.rng);assert.deepEqual(migrated.light,s.light);
   assert.deepEqual(projectPlayerEncounterKnowledge(migrated),projectPlayerEncounterKnowledge(s));
