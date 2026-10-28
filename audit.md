@@ -1,5 +1,12 @@
 # Acceptance audit (newest first)
 
+## v0.1.10 — QUALIFIED CANDIDATE, NOT YET ACCEPTED — B20 public equipment evidence
+
+**Authority:** original Moldvay Basic (1981) p. B20 weights (cn), character encumbrance and armored-treasure slowdown; B19/B24 running-rate tables. Added immutable public, independently authored *encounter-only* snapshot of an unarmored fighter carrying sword 60 cn + bow/arrows 30 cn + miscellaneous equipment 80 cn = **170 cn**. Validated 400/401/600/601/800/801/1600 coin-weight cutoffs, worn-armor constraints, treasure assertions, exact item quantities and unloaded/overloaded rejection. After previously established public pursuit choice and rate review, one exact `encounter.party-load-establish` records rate evidence and `awaiting-chase-adjudication`. **No permanent inventory creation, chase movement, escape, capture, time, torch, HP or RNG mutation.** Save schema v11 migrates v1–v10, rejects forged v11 history. G08 partial and full-roadmap **19%** unchanged.
+
+**Qualification:** candidate `284ff55e5702f20a2e91468db3b76c3f463e6701` passed GitHub Actions `40613706191` (**99/99 Node**, real Chrome full prior game/status and new B20 equipment/save/refusal probe, JS syntax/secret checks). Earlier candidate failed at the nested state expression parse; a pure explicit stage-tail validator replaced it. Two test assertions were corrected to honor canonical fixture defaults and the existing bounded journal retention contract. No save checks or B/X rules were relaxed. PR #25 unmerged pending documentation head CI and exact-merged-main Actions/Pages. Tentative next v0.1.11 source-based movement/round prerequisites, not full chase resolution.
+
+
 ## v0.1.9 — FULLY ACCEPTED — B19/B24 rate prerequisite
 
 Original Moldvay Basic (1981) B19/B20 character encumbrance bands and movement table, B24 running and pursuit rate, B53 goblin 60' per turn (20'/encounter round). New source-rate module independently tests 4 exact B19 categories, unestablished gear refusal and fixed goblin rate; strict public rate-review evidence on a prior v0.1.8 pending pursuit records `awaiting-party-rate-evidence`. **No inferred sample-fighter encumbrance, no chase, no movement, no RNG/time/light/HP changes, no victory, no monster-secret UI leak.** Schema v10 migrates v1–v9; historic v9 cannot forge rate-event stage. Gate G08 remains partial; full roadmap 19%.

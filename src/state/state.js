@@ -11,8 +11,9 @@ import {validateDispositionEvidence,dispositionForEvidenceId} from '../rules/dis
 import {monsterWithdrawalPursued} from '../content/encounters/public-pursuit.js';
 import {validatePursuitEvidence} from '../rules/pursuit-evidence.js';
 import {publicPursuitRateReview,validatePursuitRateReview} from '../rules/pursuit-rates.js';
+import {publicPartyLoadEvidence,validatePublicPartyLoad,canonicalPartyLoad} from '../rules/equipment-evidence.js';
 
-export const SCHEMA_VERSION = 10;
+export const SCHEMA_VERSION = 11;
 const own = (o,k) => Object.prototype.hasOwnProperty.call(o,k);
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const exact = (v, keys) => object(v) && Object.keys(v).length === keys.length && keys.every(k=>own(v,k));
@@ -83,7 +84,8 @@ function validContact(e,s){
       e.evidenceId===null && sameVisibility(e.visibility,unestablishedVisibility())) ||
      ((e.stage==='perception-adjudicated' || e.stage==='awaiting-referee-continuation' ||
        e.stage==='awaiting-pursuit-adjudication' ||
-       e.stage==='awaiting-party-rate-evidence') && validSurprise(e.surprise) &&
+       e.stage==='awaiting-party-rate-evidence' ||
+       e.stage==='awaiting-chase-adjudication') && validSurprise(e.surprise) &&
       typeof e.evidenceId==='string' && knownPerceptionEvidence(e.evidenceId)!==null &&
       sameVisibility(e.visibility,derivePublicVisibility(
         knownPerceptionEvidence(e.evidenceId),s.light,e.distanceFeet))));
@@ -135,13 +137,43 @@ function validRateRecord(e,s) {
     Number.isSafeInteger(e.dueTurn) && e.dueTurn>=1 && e.dueTurn<=s.turns+1 &&
     e.reviewId===publicPursuitRateReview.id;
 }
+function validEquipmentRecord(e,s) {
+  return exact(e,['kind','dueTurn','evidenceId','weightCoins','band']) &&
+    e.kind==='encounter.party-load-established' &&
+    Number.isSafeInteger(e.dueTurn)&&e.dueTurn>=1&&e.dueTurn<=s.turns+1 &&
+    e.evidenceId===publicPartyLoadEvidence.id &&
+    e.weightCoins===canonicalPartyLoad.totalCoins &&
+    e.band===canonicalPartyLoad.band;
+}
 function validPerceptionRecord(e,s) {
   return exact(e,['kind','dueTurn']) && e.kind==='encounter.perception' &&
     Number.isSafeInteger(e.dueTurn) && e.dueTurn>=1 && e.dueTurn<=s.turns+1;
 }
+function validEncounterTrail(s) {
+  const stage=s.activeEncounter?.stage, last=s.journal.at(-1),prev=s.journal.at(-2),before=s.journal.at(-3);
+  const due=s.activeEncounter?.dueTurn;
+  const pursuit=e=>e?.kind==='encounter.pursuit-decision' &&
+    e.dueTurn===due && e.evidenceId===monsterWithdrawalPursued.id;
+  const reviewed=e=>e?.kind==='encounter.pursuit-rate-review' &&
+    e.dueTurn===due && e.reviewId===publicPursuitRateReview.id;
+  const witnessed=e=>e?.kind==='encounter.party-load-established' &&
+    e.dueTurn===due && e.evidenceId===publicPartyLoadEvidence.id &&
+    e.weightCoins===canonicalPartyLoad.totalCoins &&
+    e.band===canonicalPartyLoad.band;
+  if(stage==='awaiting-chase-adjudication')
+    return s.activeEncounter.visibility.presence==='visible' &&
+      pursuit(before)&&reviewed(prev)&&witnessed(last);
+  if(stage==='awaiting-party-rate-evidence')
+    return s.activeEncounter.visibility.presence==='visible' &&
+      pursuit(prev)&&reviewed(last);
+  if(stage==='awaiting-pursuit-adjudication')
+    return s.activeEncounter.visibility.presence==='visible'&&pursuit(last);
+  return !['encounter.pursuit-decision','encounter.pursuit-rate-review',
+    'encounter.party-load-established'].includes(last?.kind);
+}
 export function assertValidState(state) {
   if (!exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter','lastEncounter']) || state.schemaVersion!==SCHEMA_VERSION ||
-    !validShared(state) || !state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state)||validSurpriseRecord(e,state)||validPerceptionRecord(e,state)||validHandoffRecord(e,state)||validCloseRecord(e,state)||validPursuitRecord(e,state)||validRateRecord(e,state)) ||
+    !validShared(state) || !state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state)||validSurpriseRecord(e,state)||validPerceptionRecord(e,state)||validHandoffRecord(e,state)||validCloseRecord(e,state)||validPursuitRecord(e,state)||validRateRecord(e,state)||validEquipmentRecord(e,state)) ||
     !exact(state.light,['kind','remainingTurns']) ||
     !['torch','none'].includes(state.light.kind) ||
     !Number.isInteger(state.light.remainingTurns) || state.light.remainingTurns<0 ||
@@ -154,21 +186,7 @@ export function assertValidState(state) {
     !(state.activeEncounter===null||validContact(state.activeEncounter,state)) ||
     (state.pendingEncounter!==null && state.activeEncounter!==null) ||
     !(state.lastEncounter===null || validLastEncounter(state.lastEncounter,state)) ||
-    (state.activeEncounter?.stage==='awaiting-party-rate-evidence' ?
-      !(state.activeEncounter.visibility.presence==='visible' &&
-        state.journal.at(-2)?.kind==='encounter.pursuit-decision' &&
-        state.journal.at(-2)?.dueTurn===state.activeEncounter.dueTurn &&
-        state.journal.at(-2)?.evidenceId===monsterWithdrawalPursued.id &&
-        state.journal.at(-1)?.kind==='encounter.pursuit-rate-review' &&
-        state.journal.at(-1)?.dueTurn===state.activeEncounter.dueTurn &&
-        state.journal.at(-1)?.reviewId===publicPursuitRateReview.id) :
-    (state.activeEncounter?.stage==='awaiting-pursuit-adjudication' ?
-      !(state.activeEncounter.visibility.presence==='visible' &&
-        state.journal.at(-1)?.kind==='encounter.pursuit-decision' &&
-        state.journal.at(-1)?.dueTurn===state.activeEncounter.dueTurn &&
-        state.journal.at(-1)?.evidenceId===monsterWithdrawalPursued.id) :
-      (state.journal.at(-1)?.kind==='encounter.pursuit-decision' ||
-       state.journal.at(-1)?.kind==='encounter.pursuit-rate-review'))))
+    !validEncounterTrail(state))
     throw Error('Invalid or unsupported B/X demo save');
   return state;
 }
@@ -176,6 +194,16 @@ export function assertValidState(state) {
 // Exact historical save migrations: no new dice rolls, visibility, or resources.
 export function migrateSaveState(state) {
   if(state?.schemaVersion===SCHEMA_VERSION)return assertValidState(state);
+  if(exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter','lastEncounter']) &&
+    state.schemaVersion===10 && validShared(state) &&
+    state.activeEncounter?.stage!=='awaiting-chase-adjudication' &&
+    state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||
+      validContactRecord(e,state)||validSurpriseRecord(e,state)||
+      validPerceptionRecord(e,state)||validHandoffRecord(e,state)||
+      validCloseRecord(e,state)||validPursuitRecord(e,state)||validRateRecord(e,state))) {
+    // v10 history cannot retroactively assert public v11 equipment evidence.
+    return assertValidState({...state,schemaVersion:SCHEMA_VERSION});
+  }
   if(exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter','lastEncounter']) &&
     state.schemaVersion===9 && validShared(state) &&
     state.activeEncounter?.stage!=='awaiting-party-rate-evidence' &&
@@ -269,6 +297,7 @@ function validProposal(state,p) {
   if (exact(op,['kind']) && op.kind==='encounter.surprise') return 'encounter.surprise';
   if (exact(op,['kind']) && op.kind==='encounter.perceive') return 'encounter.perceive';
   if (exact(op,['kind']) && op.kind==='encounter.handoff') return 'encounter.handoff';
+  if (exact(op,['kind']) && op.kind==='encounter.party-load-establish') return 'encounter.party-load-establish';
   if (exact(op,['kind']) && op.kind==='encounter.pursuit-rate-review') return 'encounter.pursuit-rate-review';
   if (exact(op,['kind']) && op.kind==='encounter.pursuit-decision') return 'encounter.pursuit-decision';
   if (exact(op,['kind']) && op.kind==='encounter.conclude') return 'encounter.conclude';
@@ -278,13 +307,14 @@ function validProposal(state,p) {
 export function executeProposal(state,proposal,encounterPacket=levelOneGoblinContact,
   perceptionEvidence=clearRecognized, dispositionEvidence=undefined,
   pursuitEvidence=monsterWithdrawalPursued,
-  rateReview=publicPursuitRateReview) {
+  rateReview=publicPursuitRateReview,
+  partyLoad=publicPartyLoadEvidence) {
   assertValidState(state);
   const kind=validProposal(state,proposal);
   if (!kind) return {accepted:false,state,outcomes:[],error:'Unsupported or stale proposal'};
   if (kind==='dungeon.rest' && (state.pendingEncounter||state.activeEncounter))
     return {accepted:false,state,outcomes:[],error:'Encounter adjudication is required before another turn'};
-  if (kind==='diagnostic.roll' && ['awaiting-pursuit-adjudication','awaiting-party-rate-evidence'].includes(state.activeEncounter?.stage))
+  if (kind==='diagnostic.roll' && ['awaiting-pursuit-adjudication','awaiting-party-rate-evidence','awaiting-chase-adjudication'].includes(state.activeEncounter?.stage))
     return {accepted:false,state,outcomes:[],error:'Pursuit needs referee adjudication first'};
   if (kind==='diagnostic.roll') {
     const roll=rollDie(state.rng,6);
@@ -389,6 +419,39 @@ export function executeProposal(state,proposal,encounterPacket=levelOneGoblinCon
       kind:'encounter.handoff',
       knowledge:projectPlayerEncounterKnowledge(next),
       stage:'awaiting-referee'
+    }]};
+  }
+  if(kind==='encounter.party-load-establish') {
+    const contact=state.activeEncounter;
+    if(!contact || contact.stage!=='awaiting-party-rate-evidence')
+      return {accepted:false,state,outcomes:[],error:'No pending B/X pursuit awaiting party equipment witness'};
+    let derived;
+    try {
+      validateEncounterPacket(encounterPacket);
+      derived=validatePublicPartyLoad(partyLoad);
+      if(contact.packetId!==encounterPacket.id || contact.monster!==encounterPacket.monster ||
+        contact.numberAppearing!==encounterPacket.numberAppearing ||
+        contact.packetId!==derived.evidence.contactId ||
+        state.character.id!==derived.evidence.characterId ||
+        contact.dueTurn!==state.turns+1 || contact.visibility.presence!=='visible' ||
+        (derived.evidence.wornArmor==='none' && state.character.ac!==9))
+        throw Error('Equipment witness does not match this public contact');
+    } catch {
+      return {accepted:false,state,outcomes:[],error:'Unsupported or unevidenced B/X loadout'};
+    }
+    // This is a publicly authored *encounter snapshot*, not an inventory
+    // mutation. Only the canonical witnessed load may establish its speed.
+    const next={...state,revision:state.revision+1,
+      activeEncounter:{...contact,stage:'awaiting-chase-adjudication'},
+      journal:[...state.journal,{kind:'encounter.party-load-established',
+        dueTurn:contact.dueTurn,evidenceId:derived.evidence.id,
+        weightCoins:derived.totalCoins,band:derived.band}].slice(-20)};
+    assertValidState(next);
+    return {accepted:true,state:next,outcomes:[{
+      kind:'encounter.party-load-established',weightCoins:derived.totalCoins,
+      runningFeetPerRound:derived.runningFeetPerRound,
+      stage:'awaiting-chase-adjudication',
+      knowledge:projectPlayerEncounterKnowledge(next)
     }]};
   }
   if(kind==='encounter.pursuit-rate-review') {

@@ -27,7 +27,7 @@ let started=false;const timer=setInterval(()=>{
   ok(!narrative.includes('goblin')&&!narrative.includes('60 feet'),'monster-private speed leaked');
   doc.getElementById('save').click();
   const saved=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
-  ok(saved.schemaVersion===10&&saved.activeEncounter.stage==='awaiting-party-rate-evidence','v10 pending stage missing');
+  ok(saved.schemaVersion===11&&saved.activeEncounter.stage==='awaiting-party-rate-evidence','v10 pending stage missing');
   ok(saved.journal.at(-1).kind==='encounter.pursuit-rate-review','no terminal journal record');
   doc.getElementById('reset').click();doc.getElementById('load').click();
   ok(view('encounter').includes('party equipment unestablished'),'reload lost pending rate check');
