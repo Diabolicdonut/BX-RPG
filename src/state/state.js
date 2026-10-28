@@ -149,6 +149,28 @@ function validPerceptionRecord(e,s) {
   return exact(e,['kind','dueTurn']) && e.kind==='encounter.perception' &&
     Number.isSafeInteger(e.dueTurn) && e.dueTurn>=1 && e.dueTurn<=s.turns+1;
 }
+function validEncounterTrail(s) {
+  const stage=s.activeEncounter?.stage, last=s.journal.at(-1),prev=s.journal.at(-2),before=s.journal.at(-3);
+  const due=s.activeEncounter?.dueTurn;
+  const pursuit=e=>e?.kind==='encounter.pursuit-decision' &&
+    e.dueTurn===due && e.evidenceId===monsterWithdrawalPursued.id;
+  const reviewed=e=>e?.kind==='encounter.pursuit-rate-review' &&
+    e.dueTurn===due && e.reviewId===publicPursuitRateReview.id;
+  const witnessed=e=>e?.kind==='encounter.party-load-established' &&
+    e.dueTurn===due && e.evidenceId===publicPartyLoadEvidence.id &&
+    e.weightCoins===canonicalPartyLoad.totalCoins &&
+    e.band===canonicalPartyLoad.band;
+  if(stage==='awaiting-chase-adjudication')
+    return s.activeEncounter.visibility.presence==='visible' &&
+      pursuit(before)&&reviewed(prev)&&witnessed(last);
+  if(stage==='awaiting-party-rate-evidence')
+    return s.activeEncounter.visibility.presence==='visible' &&
+      pursuit(prev)&&reviewed(last);
+  if(stage==='awaiting-pursuit-adjudication')
+    return s.activeEncounter.visibility.presence==='visible'&&pursuit(last);
+  return !['encounter.pursuit-decision','encounter.pursuit-rate-review',
+    'encounter.party-load-established'].includes(last?.kind);
+}
 export function assertValidState(state) {
   if (!exact(state,[...initialKeys,'light','pendingEncounter','activeEncounter','lastEncounter']) || state.schemaVersion!==SCHEMA_VERSION ||
     !validShared(state) || !state.journal.every(e=>validDiagnostic(e)||validRest(e,state)||validContactRecord(e,state)||validSurpriseRecord(e,state)||validPerceptionRecord(e,state)||validHandoffRecord(e,state)||validCloseRecord(e,state)||validPursuitRecord(e,state)||validRateRecord(e,state)||validEquipmentRecord(e,state)) ||
@@ -164,35 +186,7 @@ export function assertValidState(state) {
     !(state.activeEncounter===null||validContact(state.activeEncounter,state)) ||
     (state.pendingEncounter!==null && state.activeEncounter!==null) ||
     !(state.lastEncounter===null || validLastEncounter(state.lastEncounter,state)) ||
-    (state.activeEncounter?.stage==='awaiting-chase-adjudication' ?
-      !(state.activeEncounter.visibility.presence==='visible' &&
-        state.journal.at(-3)?.kind==='encounter.pursuit-decision' &&
-        state.journal.at(-3)?.dueTurn===state.activeEncounter.dueTurn &&
-        state.journal.at(-3)?.evidenceId===monsterWithdrawalPursued.id &&
-        state.journal.at(-2)?.kind==='encounter.pursuit-rate-review' &&
-        state.journal.at(-2)?.dueTurn===state.activeEncounter.dueTurn &&
-        state.journal.at(-2)?.reviewId===publicPursuitRateReview.id &&
-        state.journal.at(-1)?.kind==='encounter.party-load-established' &&
-        state.journal.at(-1)?.dueTurn===state.activeEncounter.dueTurn &&
-        state.journal.at(-1)?.evidenceId===publicPartyLoadEvidence.id &&
-        state.journal.at(-1)?.weightCoins===canonicalPartyLoad.totalCoins &&
-        state.journal.at(-1)?.band===canonicalPartyLoad.band) :
-    (state.activeEncounter?.stage==='awaiting-party-rate-evidence' ?
-      !(state.activeEncounter.visibility.presence==='visible' &&
-        state.journal.at(-2)?.kind==='encounter.pursuit-decision' &&
-        state.journal.at(-2)?.dueTurn===state.activeEncounter.dueTurn &&
-        state.journal.at(-2)?.evidenceId===monsterWithdrawalPursued.id &&
-        state.journal.at(-1)?.kind==='encounter.pursuit-rate-review' &&
-        state.journal.at(-1)?.dueTurn===state.activeEncounter.dueTurn &&
-        state.journal.at(-1)?.reviewId===publicPursuitRateReview.id) :
-    (state.activeEncounter?.stage==='awaiting-pursuit-adjudication' ?
-      !(state.activeEncounter.visibility.presence==='visible' &&
-        state.journal.at(-1)?.kind==='encounter.pursuit-decision' &&
-        state.journal.at(-1)?.dueTurn===state.activeEncounter.dueTurn &&
-        state.journal.at(-1)?.evidenceId===monsterWithdrawalPursued.id) :
-      (state.journal.at(-1)?.kind==='encounter.pursuit-decision' ||
-       (state.journal.at(-1)?.kind==='encounter.pursuit-rate-review' ||
-        state.journal.at(-1)?.kind==='encounter.party-load-established')))))
+    !validEncounterTrail(state))
     throw Error('Invalid or unsupported B/X demo save');
   return state;
 }
