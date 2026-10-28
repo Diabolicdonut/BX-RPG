@@ -1,6 +1,6 @@
 # B/X RPG — Authoritative Development Roadmap
 
-**Project:** `Diabolicdonut/BX-RPG` · **Governance revision:** 1 (2026-10-27) · **Last fully accepted game revision:** **v0.1.8** · **Next engine checkpoint:** **v0.1.9**.
+**Project:** `Diabolicdonut/BX-RPG` · **Governance revision:** 1 (2026-10-27) · **Last fully accepted game revision:** **v0.1.9** · **Next engine checkpoint:** **v0.1.10**.
 
 > **This is the repository's authoritative LONG-TERM PRODUCT ROADMAP and development instructions.** All humans and AI development agents must read it together with `AGENTS.md`, the newest accepted entry in `audit.md`, `pipeline-state.md`, and current `main` before changing the game. GitHub's newest validated accepted code and audit remain authoritative for *what actually exists*. This document governs the desired end state, scope, work sequencing, evidence requirements and weighted progress. Disagreement is a blocking issue to reconcile, **never permission to silently overwrite accepted code**.
 
@@ -41,13 +41,13 @@ Client-only GitHub Pages is suitable for the current **public demonstration** bu
 | Gate | Deliverable (full denominator) | Weight | Status | Recorded evidence / limitation |
 |---|---|---:|---|---|
 | G01 | Deterministic intent and state boundary (demo scope) | 4 | accepted | src/state/state.js; tests/foundation.test.mjs |
-| G02 | Seeded dice and exact versioned save migration (v1–v9) | 4 | accepted | src/state/rng.js; src/state/storage.js; tests |
+| G02 | Seeded dice and exact versioned save migration (v1–v10) | 4 | accepted | src/state/rng.js; src/state/storage.js; tests |
 | G03 | Basic dungeon clock and six-turn torch demonstration | 3 | accepted | src/state/state.js; tests/exploration-turn.test.mjs |
 | G04 | Bounded wandering encounter and distance demonstration | 3 | accepted | src/content/encounters/level1-goblin.js; tests/encounter-contact.test.mjs |
 | G05 | Surprise, sight and player-information demonstration | 3 | accepted | tests/surprise.test.mjs; tests/perception.test.mjs |
 | G06 | Two evidence-gated nonpursuit demonstration outcomes | 2 | accepted | tests/disposition.test.mjs; tests/monster-withdrawal.test.mjs |
 | G07 | Complete B/X dungeon exploration, hazards and resource loop | 7 | planned | Acceptance plan below; not yet implemented |
-| G08 | Full encounter reactions, movement, evasion and pursuit | 6 | partial | v0.1.8 bounded pursuit choice verified; reactions, movement and outcomes outstanding |
+| G08 | Full encounter reactions, movement, evasion and pursuit | 6 | partial | v0.1.9 B19 rate audit verified; party gear, reactions, movement and outcomes outstanding |
 | G09 | B/X combat, initiative, morale, saves and conditions | 8 | planned | Acceptance plan below; not yet implemented |
 | G10 | Seven B/X classes, creation, equipment and advancement | 7 | planned | Acceptance plan below; demo fighter is not character generation |
 | G11 | Complete Basic and Expert spellcasting and magical effects | 6 | planned | Acceptance plan below; not yet implemented |
@@ -103,7 +103,7 @@ Phases may progress in parallel **only** when prerequisites are met and nonconfl
 
 ### Current immediate dependency (preserve accepted GitHub controller)
 
-**Next:** `v0.1.9` — bounded source-verified movement/rate prerequisites for a *pending* B24 pursuit, without asserting any completed chase. Inspect `pipeline-state.md` and latest audit for any newer accepted checkpoint before starting. Do **not** infer pursuit resolution, initiative, reactions, combat, generated adventures or hidden-AI security from the pending pursuit-decision evidence.
+**Next:** `v0.1.10` — bounded verified equipment/encumbrance evidence for the unresolved B24 pursuit; never invent an unestablished party speed or chase outcome. Inspect `pipeline-state.md` and latest audit for any newer accepted checkpoint before starting. Do **not** infer pursuit resolution, initiative, reactions, combat, generated adventures or hidden-AI security from the pending pursuit-decision evidence.
 
 ## 6. Rules for all development workers
 
@@ -118,7 +118,7 @@ Phases may progress in parallel **only** when prerequisites are met and nonconfl
 
 ## 7. Revision and scope change log (newest first)
 
-- **2026-10-27 · v0.1.9 QUALIFIED CANDIDATE, not accepted:** Implemented original Moldvay Basic **B19/B20/B24** player movement bands and **B53** goblin movement reference, with strict source-derived rate-review prerequisites for v0.1.8's pending, unadjudicated pursuit. The sample fighter's *actual armor and encumbrance remain unknown*: the engine records **unestablished** party rate instead of inventing one and cannot determine relative speed, chase rounds or outcomes. Save v10 exactly migrates v1–v9 and denies historical rate-forgery. Candidate `9727677097db8fa1e3218214ea8852c66e7df15c` passed GitHub Actions `40605577723`: 91/91 Node and real Chrome. **G08 partial and 19% remain unchanged**, as do six accepted foundational gates. Before formal acceptance: qualify documentation, merge PR #23, verify exact merged-main Actions+Pages, then update this roadmap's accepted version, G02/G08 evidence and synchronized `site-progress.json`. Proposed next **v0.1.10**: independently source-backed party equipment/encumbrance evidence, without inventing a chase outcome.
+- **2026-10-27 · v0.1.9 FULLY ACCEPTED:** Original B/X B19/B20 four character rate bands, B24 running rules and B53 goblin rate are source-backed. An exact public demo rate review explicitly **does not assign** the sample fighter an invented burden or speed, and advances no chase, time, light, RNG, HP, escape or capture. Schema v10 strictly migrates v1–v9. Feature/test SHA `9727677097db8fa1e3218214ea8852c66e7df15c` passed 91/91 Node and real Chrome `40605577723`; qualified docs `06c4f39ce3f83be522307cf6c351d8b75f977be9` passed `40605788421`. PR #23 merged at `36c2cc57619560d989d0ce752db0a4f540ae83d5`, exact merged-main Node/Chrome `40605875378` and Pages `40605875029` both succeeded. G08 stays **partial**, full vision **19%** unchanged. Next **v0.1.10**: establish independent party armor/encumbrance evidence, still no chase resolution.
 
 - **2026-10-27 · v0.1.8 FULLY ACCEPTED:** B24 monsters-withdraw/party-elects-pursuit is recorded as an **unresolved**, visible-target-gated decision. No dice, turn, light, forced chase, escape or capture. Save schema v9 migrates v1–v8 exactly and refuses historical pursuit forgery. PR #21 merged at `1f8810096015c287775bbf452df1cbddb95c882f`, qualified Node 84/84 and real Chrome `40568426075`, exact-main Node/Chrome `40568623477` and Pages `40568559827` succeeded. **G08 remains partial**, so full-vision completion stays **19%**, unchanged by this narrowly accepted slice. Next **v0.1.9**: source-backed pursuit movement/rate prerequisite; no claim of actual chase resolution.
 

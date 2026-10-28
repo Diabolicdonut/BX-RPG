@@ -1,10 +1,10 @@
 # Acceptance audit (newest first)
 
-## v0.1.9 — QUALIFIED CANDIDATE (not accepted) — B19/B24 rate prerequisite
+## v0.1.9 — FULLY ACCEPTED — B19/B24 rate prerequisite
 
 Original Moldvay Basic (1981) B19/B20 character encumbrance bands and movement table, B24 running and pursuit rate, B53 goblin 60' per turn (20'/encounter round). New source-rate module independently tests 4 exact B19 categories, unestablished gear refusal and fixed goblin rate; strict public rate-review evidence on a prior v0.1.8 pending pursuit records `awaiting-party-rate-evidence`. **No inferred sample-fighter encumbrance, no chase, no movement, no RNG/time/light/HP changes, no victory, no monster-secret UI leak.** Schema v10 migrates v1–v9; historic v9 cannot forge rate-event stage. Gate G08 remains partial; full roadmap 19%.
 
-Candidate feature/tests SHA `9727677097db8fa1e3218214ea8852c66e7df15c` passed Actions `40605577723`: **91/91 Node** and real Chrome including new save/load/refusal-rate browser probe, all earlier mechanics/progress probes, syntax and forbidden secret scans. First candidate CI failed a syntax-parenthesis issue in validator; next candidate failed one inherited v9 migration test expectation. Both were corrected; no rule validation weakened. PR #23 remains awaiting qualified-documentation CI and merge before accepted main/Pages verification. Next tentative checkpoint v0.1.10 is bounded party equipment/encumbrance provenance, not chase resolution.
+Candidate feature/tests SHA `9727677097db8fa1e3218214ea8852c66e7df15c` passed Actions `40605577723`: **91/91 Node** and real Chrome including new save/load/refusal-rate browser probe, all earlier mechanics/progress probes, syntax and forbidden secret scans. First candidate CI failed a syntax-parenthesis issue in validator; next candidate failed one inherited v9 migration test expectation. Both were corrected; no rule validation weakened. PR #23 qualified docs `06c4f39ce3f83be522307cf6c351d8b75f977be9` passed Actions `40605788421` (Node+Chrome), then merged into main as `36c2cc57619560d989d0ce752db0a4f540ae83d5`. Exact merged-main Node/Chrome `40605875378` and Pages `40605875029` both **SUCCESS**. Acceptance closeout updates only roadmap/status/documentation and the revision browser probe; rules code stays identical to the qualified candidate. Next tentative checkpoint v0.1.10 is bounded party equipment/encumbrance provenance, not chase resolution.
 
 
 ## v0.1.8 — FULLY ACCEPTED — recorded pursuit election (G08 partial)
