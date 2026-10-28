@@ -8,6 +8,8 @@ export function parseLocalIntent(text,baseRevision) {
   const diagnostic=parseLocalDiagnostic(text,baseRevision);
   if (diagnostic) return diagnostic;
   if (typeof text!=='string') return null;
+  if (text.trim().toLowerCase()==='review public demo pursuit rates')
+    return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.pursuit-rate-review'}]};
   if (text.trim().toLowerCase()==='record public demo pursuit choice')
     return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.pursuit-decision'}]};
   if (text.trim().toLowerCase()==='resolve public demo monster withdrawal')
@@ -40,6 +42,8 @@ export function narrateAuthoritativeResult(result) {
       ? `The creatures withdraw; the party does not pursue. The encounter ends. Dungeon turn ${outcome.turn}. ${light}`
       : `The party withdraws; the creatures do not pursue. The encounter ends. Dungeon turn ${outcome.turn}. ${light}`;
   }
+  if(outcome.kind==='encounter.pursuit-rate-review')
+    return 'The B/X running-rate rules are ready for adjudication, but the party\'s actual equipment load and movement rate are not established. Chase movement, relative speed, escape and capture remain unresolved. No time, dice or torchlight have advanced.';
   if(outcome.kind==='encounter.pursuit-decision') {
     const sight=outcome.knowledge.visibility;
     const target=sight.identity==='goblin'?'the visible goblin':'the visible creature';
