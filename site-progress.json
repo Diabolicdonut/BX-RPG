@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "project": "BX-RPG",
-  "asOf": "2026-10-27",
-  "revision": "v0.1.10",
+  "asOf": "2026-10-28",
+  "revision": "v0.1.11",
   "revisionSource": {
     "type": "text",
     "file": "pipeline-state.md",
@@ -32,7 +32,7 @@
       },
       {
         "id": "g02",
-        "label": "Seeded dice and exact versioned save migration (v1–v11)",
+        "label": "Seeded dice and exact versioned save migration (v1–v12)",
         "weight": 4,
         "status": "accepted",
         "evidence": "src/state/rng.js; src/state/storage.js; tests"
@@ -77,7 +77,7 @@
         "label": "Full encounter reactions, movement, evasion and pursuit",
         "weight": 6,
         "status": "partial",
-        "evidence": "v0.1.10 public B20 load evidence verified; durable gear, reactions, chase and outcomes outstanding"
+        "evidence": "v0.1.11 B24 round budget verified; route, rounds, reactions and outcomes outstanding"
       },
       {
         "id": "g09",
