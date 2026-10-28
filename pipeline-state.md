@@ -1,5 +1,9 @@
 # B/X RPG pipeline
 
+- **v0.1.13 QUALIFIED CANDIDATE, not accepted:** PR #31 source/test SHA 68230d5cfdb0c2beff50a0c19353524855fd3a52 passed 122/122 Node plus real Chrome on Actions 40725768046. Original B19/B23/B24 round/time rules combined with an original independently authored clear-corridor pace-matched public chase decision: each side runs 60 feet in ten seconds, separation and torchlit sight preserved. No automatic catch, escape, combat, premature dungeon/torch turn or RNG. Schema v14 migrates v1–v13. G08 partial, 19% full vision. Qualify docs, merge, verify main+Pages, synchronize roadmap and site revision.
+- **Tentative v0.1.14:** bounded second-round movement and corridor-end evidence, or safe contact adjudication; do not infer encounter closure.
+
+
 - **v0.1.12 FULLY ACCEPTED on main:** PR #29 merged as `e4ed9c805ebbd48f23ecd051e3ca77d8011178b3`. Feature/test `4c2ec20e1d2451ec35b42beaff706f9b0c961d36` passed Actions `40703525609` (**115/115 Node and real Chrome**), qualified documentation `b5723cd5869d578168ce2bd95bda39e6f0f72c2b` passed `40703813411`, exact merged-main Node+Chrome `40703970330` and Pages `40703970496` both **SUCCESS**. Website revision `v0.1.12`, full-vision **19%** and G08 still partial.
 - **Accepted strict scope:** independently authored **public** 180-foot corridor, not an official Moldvay map. Source B24 pursuit boundary, current visible contact and seeded exact separation reconciled privately; future sight continuity **unestablished**. No movement, running round, chase conclusion, light, RNG, HP or dungeon-turn mutation. Exact new route journal and stage `awaiting-first-pursuit-round-evidence`; save v13 migrates v1–v12, refuses forged future source.
 - **Next exact checkpoint v0.1.13:** separately evidenced first B24 pursuit-round movement and line-of-sight action prerequisites; never infer chase outcome from speed/straight corridor alone.
