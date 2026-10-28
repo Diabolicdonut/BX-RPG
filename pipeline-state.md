@@ -1,5 +1,9 @@
 # B/X RPG pipeline
 
+- **v0.1.14 QUALIFIED CANDIDATE (not yet accepted):** PR #33 `work/v0.1.14-second-running-round`, source/test SHA `e2a3b3f09991181761ea43cca4693386922131d8` passed Actions `40727766246` (**129/129 Node, real Chrome**). B19/B23/B24 second actual 10-second pursuit round on original authored clear lit scene, both choose/run another 60 ft; total 20 encounter seconds, party initial anchor +120 ft, source-determined evader remains within 180-ft corridor and visible. Zero premature full dungeon/torch turn, dice, combat, catch/escape. Save v15 migrations v1–v14. G08 partial, project 19%. Await qualified documentation, feature merge, exact-main CI+Pages, acceptance ledger closeout.
+- **Proposed next v0.1.15:** independently supported corridor-end or contact/sight decision before any third running round; never run through an unverified corridor end.
+
+
 - **v0.1.13 FULLY ACCEPTED on main:** PR #31 merged `4ef9ad6b374d063e4aa22d498e1650f694e5bf59`. Candidate `68230d5cfdb0c2beff50a0c19353524855fd3a52` Actions `40725768046` passed **122/122 Node plus Chrome**; docs-qualified `8610b1d452266ae2d23b6e4e6b1a708e2d87d766` passed `40726161021`. Exact-main Node/Chrome `40726302397` and Pages `40726303289` **SUCCESS**. Website version v0.1.13, full-vision 19%, G08 partial.
 - **Accepted scope:** Original B/X B19/B23/B24 running and encounter-round timing with independently authored public passage and deliberate 60-ft pace. Actual first 10-second pursuit round moves each side 60 ft through clear lit corridor; remains safely separated and seen. No automatic catch/escape, combat, RNG or early dungeon/torch turn consumption. Save schema v14 migrates v1–v13; forged v14 history refused.
 - **Next exact v0.1.14:** separately evidenced second pursuit round and corridor-end constraints, or a supported stop/interaction boundary. Keep contact fate unresolved unless explicitly adjudicated.
