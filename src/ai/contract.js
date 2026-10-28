@@ -8,6 +8,8 @@ export function parseLocalIntent(text,baseRevision) {
   const diagnostic=parseLocalDiagnostic(text,baseRevision);
   if (diagnostic) return diagnostic;
   if (typeof text!=='string') return null;
+  if (text.trim().toLowerCase()==='establish public demo pursuit corridor')
+    return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.pursuit-route-establish'}]};
   if (text.trim().toLowerCase()==='review public demo pursuit round budget')
     return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.pursuit-round-budget-review'}]};
   if (text.trim().toLowerCase()==='establish public demo party load')
@@ -46,6 +48,8 @@ export function narrateAuthoritativeResult(result) {
       ? `The creatures withdraw; the party does not pursue. The encounter ends. Dungeon turn ${outcome.turn}. ${light}`
       : `The party withdraws; the creatures do not pursue. The encounter ends. Dungeon turn ${outcome.turn}. ${light}`;
   }
+  if(outcome.kind==='encounter.pursuit-route-established')
+    return 'An independently authored straight corridor is confirmed unobstructed at the encounter decision point. Whether sight will continue after movement is not established. No running round, relocation, capture, escape, light or dungeon time has occurred.';
   if(outcome.kind==='encounter.pursuit-round-budget-reviewed')
     return `Original B/X running permits up to ${outcome.partyPotentialFeetPerRound} feet of party movement in one hypothetical running round, within a ${outcome.runningLimitRounds}-round limit. No round has elapsed, and no movement occurred. Route, continuing sight, and chase result remain unresolved.`;
   if(outcome.kind==='encounter.party-load-established')
