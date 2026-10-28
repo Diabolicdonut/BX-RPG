@@ -1,5 +1,12 @@
 # Acceptance audit (newest first)
 
+## v0.1.11 — QUALIFIED CANDIDATE — B24 running-round movement budget (G08 partial)
+
+**Source:** Original Moldvay Basic (1981) B19/B24 running/encounter speed and 30-round character maximum; B53 goblin public rate; already witnessed B20 170-cn illustrative fighter rate. A strict public fixture derives a **potential** 120-ft party and 60-ft goblin running budget for one hypothetical 10-second round. It proves neither map/path, continuous sight, round elapsed, movement nor outcome. A new typed intent validates all preceding pursuit/load facts, moves only administrative state into `awaiting-route-and-round-evidence`, and writes an exact canonical journal entry. State schema v12 migrates v1–v11 and rejects v11 data claiming v12-only budget evidence. Source private data is never narrated. G08 remains partial; full roadmap 19%.
+
+**Candidate verification:** SHA `9455ac808f372548836acd6baea3a2874302c137`, GitHub Actions `40701524225`: **107/107 Node and real Chrome**, including latest budget/save/refusal probe plus earlier encounter/roadmap checks. PR #27 has not yet completed documentation qualification, merge, exact-main checks and Pages deployment. Thus **not yet accepted**.
+
+
 ## v0.1.10 — FULLY ACCEPTED — B20 public equipment evidence
 
 **Authority:** original Moldvay Basic (1981) p. B20 weights (cn), character encumbrance and armored-treasure slowdown; B19/B24 running-rate tables. Added immutable public, independently authored *encounter-only* snapshot of an unarmored fighter carrying sword 60 cn + bow/arrows 30 cn + miscellaneous equipment 80 cn = **170 cn**. Validated 400/401/600/601/800/801/1600 coin-weight cutoffs, worn-armor constraints, treasure assertions, exact item quantities and unloaded/overloaded rejection. After previously established public pursuit choice and rate review, one exact `encounter.party-load-establish` records rate evidence and `awaiting-chase-adjudication`. **No permanent inventory creation, chase movement, escape, capture, time, torch, HP or RNG mutation.** Save schema v11 migrates v1–v10, rejects forged v11 history. G08 partial and full-roadmap **19%** unchanged.
