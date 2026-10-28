@@ -8,6 +8,8 @@ export function parseLocalIntent(text,baseRevision) {
   const diagnostic=parseLocalDiagnostic(text,baseRevision);
   if (diagnostic) return diagnostic;
   if (typeof text!=='string') return null;
+  if (text.trim().toLowerCase()==='advance public demo second pursuit round')
+    return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.pursuit-second-round'}]};
   if (text.trim().toLowerCase()==='advance public demo first pursuit round')
     return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.pursuit-first-round'}]};
   if (text.trim().toLowerCase()==='establish public demo pursuit corridor')
@@ -50,6 +52,8 @@ export function narrateAuthoritativeResult(result) {
       ? `The creatures withdraw; the party does not pursue. The encounter ends. Dungeon turn ${outcome.turn}. ${light}`
       : `The party withdraws; the creatures do not pursue. The encounter ends. Dungeon turn ${outcome.turn}. ${light}`;
   }
+  if(outcome.kind==='encounter.pursuit-second-round')
+    return `A second independently witnessed ten-second running round passes: each side runs another ${outcome.partyMoveFeet} feet along the clear straight corridor. Twenty encounter seconds have elapsed in total, with the fleeing creature still visible. The chase remains unresolved and the corridor end now requires further adjudication; no dungeon turn, torch turn, or dice roll has been added.`;
   if(outcome.kind==='encounter.pursuit-first-round')
     return `The party chooses a measured running pace. The two sides each travel ${outcome.partyMoveFeet} feet during one ten-second pursuit round; the creature remains visible nearby. The chase is still unresolved. Dungeon turns, torch duration and dice remain unchanged while the encounter continues.`;
   if(outcome.kind==='encounter.pursuit-route-established')
