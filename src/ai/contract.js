@@ -8,6 +8,8 @@ export function parseLocalIntent(text,baseRevision) {
   const diagnostic=parseLocalDiagnostic(text,baseRevision);
   if (diagnostic) return diagnostic;
   if (typeof text!=='string') return null;
+  if (text.trim().toLowerCase()==='review public demo pursuit round budget')
+    return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.pursuit-round-budget-review'}]};
   if (text.trim().toLowerCase()==='establish public demo party load')
     return {contract:'bx.intent.v1',baseRevision,operations:[{kind:'encounter.party-load-establish'}]};
   if (text.trim().toLowerCase()==='review public demo pursuit rates')
@@ -44,6 +46,8 @@ export function narrateAuthoritativeResult(result) {
       ? `The creatures withdraw; the party does not pursue. The encounter ends. Dungeon turn ${outcome.turn}. ${light}`
       : `The party withdraws; the creatures do not pursue. The encounter ends. Dungeon turn ${outcome.turn}. ${light}`;
   }
+  if(outcome.kind==='encounter.pursuit-round-budget-reviewed')
+    return `Original B/X running permits up to ${outcome.partyPotentialFeetPerRound} feet of party movement in one hypothetical running round, within a ${outcome.runningLimitRounds}-round limit. No round has elapsed, and no movement occurred. Route, continuing sight, and chase result remain unresolved.`;
   if(outcome.kind==='encounter.party-load-established')
     return `The independently witnessed public demonstration load weighs ${outcome.weightCoins} coin-weights and establishes a party running rate of ${outcome.runningFeetPerRound} feet per round. This is not a permanent inventory assignment. The attempted pursuit is still unresolved; no movement, dice or dungeon time have passed.`;
   if(outcome.kind==='encounter.pursuit-rate-review')
