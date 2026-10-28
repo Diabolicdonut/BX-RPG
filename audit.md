@@ -1,5 +1,10 @@
 # Acceptance audit (newest first)
 
+## v0.1.13 — QUALIFIED CANDIDATE — one actual B/X pursuit round (G08 partial)
+
+Original Moldvay Basic B19/B23/B24/B53 provides source running speeds, ten-second encounter rounds, and short encounter dungeon-time accounting. An independently authored public fixture—not an official map or AI referee decision—documents a deliberately selected 60-ft fighter pace, 60-ft goblin movement, clear 120-ft corridor span and continued torchlit sight. One actual round (10 sec) records each side moving 60 ft, with no automatic catch/escape, additional dungeon/torch turn, combat, RNG or HP change. New stage awaiting-second-pursuit-round-evidence and exact journal; save schema v14 migrates v1–v13 with forged-history refusal. Feature/test SHA 68230d5cfdb0c2beff50a0c19353524855fd3a52 passed Actions 40725768046 (**122/122 Node plus real Chrome**). PR #31 remains awaiting qualified-documentation CI, merge and exact-main Pages; NOT yet accepted.
+
+
 ## v0.1.12 — FULLY ACCEPTED — independently authored initial corridor evidence
 
 **Scope and authority:** Original Moldvay Basic (1981) B24 pursuit mechanics are authoritative; the **180-foot straight corridor is an original public authored encounter fixture**, NOT a B/X book map or imported adventure. With previously confirmed visible pursuit, B19 rate, B20 170-cn load, and B24 zero-elapsed budget, a strict matching corridor witness establishes a static initial party anchor, a private encounter-distance-aligned initial monster anchor and no authored obstruction *at decision time*. This does **not** establish later line of sight, actual movement, running rounds, catch/escape, or referee secrets. New `awaiting-first-pursuit-round-evidence` stage, exact new terminal journal witness and schema v13 (exact v1–v12 migration). Rejected forged past/future facts and all unauthorized operations; no RNG, HP, time/light or player-information changes.
