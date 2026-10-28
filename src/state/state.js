@@ -93,7 +93,7 @@ function validContact(e,s){
        e.stage==='awaiting-route-and-round-evidence' ||
        e.stage==='awaiting-first-pursuit-round-evidence' ||
        e.stage==='awaiting-second-pursuit-round-evidence' ||
-       e.stage==='awaiting-third-pursuit-round-boundary' && validSurprise(e.surprise) &&
+       e.stage==='awaiting-third-pursuit-round-boundary') && validSurprise(e.surprise) &&
       typeof e.evidenceId==='string' && knownPerceptionEvidence(e.evidenceId)!==null &&
       sameVisibility(e.visibility,derivePublicVisibility(
         knownPerceptionEvidence(e.evidenceId),s.light,e.distanceFeet))));
