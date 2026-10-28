@@ -1,5 +1,12 @@
 # Acceptance audit (newest first)
 
+## v0.1.12 — QUALIFIED CANDIDATE — independently authored initial corridor evidence
+
+**Scope and authority:** Original Moldvay Basic (1981) B24 pursuit mechanics are authoritative; the **180-foot straight corridor is an original public authored encounter fixture**, NOT a B/X book map or imported adventure. With previously confirmed visible pursuit, B19 rate, B20 170-cn load, and B24 zero-elapsed budget, a strict matching corridor witness establishes a static initial party anchor, a private encounter-distance-aligned initial monster anchor and no authored obstruction *at decision time*. This does **not** establish later line of sight, actual movement, running rounds, catch/escape, or referee secrets. New `awaiting-first-pursuit-round-evidence` stage, exact new terminal journal witness and schema v13 (exact v1–v12 migration). Rejected forged past/future facts and all unauthorized operations; no RNG, HP, time/light or player-information changes.
+
+**Candidate:** SHA `4c2ec20e1d2451ec35b42beaff706f9b0c961d36`, Actions `40703525609` **115/115 Node plus real Chrome** including initial corridor, persistence, refusal and player-information probe. PR #29 is not yet accepted and requires docs qualification, merge and exact-main CI/Pages verification. G08 partial and 19% full vision unchanged.
+
+
 ## v0.1.11 — FULLY ACCEPTED — B24 running-round movement budget (G08 partial)
 
 **Source:** Original Moldvay Basic (1981) B19/B24 running/encounter speed and 30-round character maximum; B53 goblin public rate; already witnessed B20 170-cn illustrative fighter rate. A strict public fixture derives a **potential** 120-ft party and 60-ft goblin running budget for one hypothetical 10-second round. It proves neither map/path, continuous sight, round elapsed, movement nor outcome. A new typed intent validates all preceding pursuit/load facts, moves only administrative state into `awaiting-route-and-round-evidence`, and writes an exact canonical journal entry. State schema v12 migrates v1–v11 and rejects v11 data claiming v12-only budget evidence. Source private data is never narrated. G08 remains partial; full roadmap 19%.
