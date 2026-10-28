@@ -34,7 +34,7 @@ let started=false;const timer=setInterval(()=>{
   ok(!narration.includes('goblin')&&!narration.includes('monsterPositionFeet'),'hidden monster leaked');
   doc.getElementById('save').click();
   const saved=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
-  ok(saved.schemaVersion===14&&saved.activeEncounter.stage==='awaiting-second-pursuit-round-evidence','v14 stage missing');
+  ok(saved.schemaVersion===15&&saved.activeEncounter.stage==='awaiting-second-pursuit-round-evidence','v14 stage missing');
   ok(saved.journal.at(-1).elapsedSeconds===10&&saved.journal.at(-1).round===1&&
     saved.journal.at(-1).partyMoveFeet===60&&saved.journal.at(-1).monsterMoveFeet===60&&
     saved.journal.at(-1).sightAfter==='visible'&&saved.journal.at(-1).result==='unresolved','first actual round incorrect');
