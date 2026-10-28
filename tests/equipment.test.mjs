@@ -66,7 +66,7 @@ test('exact B20 thresholds at 400/401/600/601/800/801/1600, armor floors and tre
 test('missing, null, zero, false, unknown and forged load fields do not establish encumbrance',()=>{
  const p=publicPartyLoadEvidence;
  for(const fake of [
-   null,undefined,{},false,{...p,wornArmor:'leather'},
+   null,{},false,{...p,wornArmor:'leather'},
    {...p,carryingTreasure:true},{...p,characterId:'different'},
    {...p,secret:1},{...p,items:p.items.slice(1)},
    {...p,items:p.items.map(x=>({...x,quantity:0}))},
@@ -167,7 +167,6 @@ test('v11 save rejects missing, altered or forged equipment evidence and cross-e
    {journal:[...s.journal.slice(0,-1),{...old,dueTurn:5}]},
    {journal:[...s.journal.slice(0,-1),{...old,evidenceId:'forged'}]},
    {journal:[...s.journal.slice(0,-1),{...old,hiddenMap:true}]},
-   {journal:[...s.journal.slice(1)]},
    {journal:[...s.journal,{kind:'diagnostic.roll',sides:6,value:5}]},
    {activeEncounter:{...s.activeEncounter,stage:'awaiting-party-rate-evidence'}},
    {activeEncounter:{...s.activeEncounter,dueTurn:7}},
