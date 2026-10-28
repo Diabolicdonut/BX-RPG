@@ -13,7 +13,9 @@ export function getStatusModel(state) {
     abilities:Object.entries(c.abilities).map(([k,v])=>`${k.toUpperCase()} ${v}`).join(' · '),
     turns:String(state.turns),minutes:String(state.turns*10),light,
     encounter:state.lastEncounter && !state.activeEncounter ? (state.lastEncounter.disposition==='monsters-withdrew-unpursued' ? 'Concluded · creatures withdrew' : 'Concluded · withdrew without pursuit') : state.activeEncounter ?
-      (state.activeEncounter.stage==='awaiting-route-and-round-evidence'
+      (state.activeEncounter.stage==='awaiting-first-pursuit-round-evidence'
+        ? 'Public corridor verified · pursuit rounds unresolved' :
+       (state.activeEncounter.stage==='awaiting-route-and-round-evidence'
         ? 'Running budget reviewed · route and rounds unresolved' :
        (state.activeEncounter.stage==='awaiting-chase-adjudication'
         ? 'Public party load established · chase unresolved' :
@@ -28,7 +30,7 @@ export function getStatusModel(state) {
           (state.activeEncounter.visibility.identity==='goblin' ?
             'Goblin visible · within torchlight' : 'Creature visible · within torchlight') :
           'Perception assessed · no confirmed sighting') :
-       (state.activeEncounter.stage==='surprise-adjudicated' ? 'Surprise resolved · visibility unestablished' : 'Contact awaiting referee'))))))) : 'None',
+       (state.activeEncounter.stage==='surprise-adjudicated' ? 'Surprise resolved · visibility unestablished' : 'Contact awaiting referee')))))))) : 'None',
     draws:String(state.rng.draws),revision:String(state.revision)};
 }
 export function renderState(state,doc=document) {

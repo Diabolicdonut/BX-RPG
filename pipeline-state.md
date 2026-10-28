@@ -1,5 +1,9 @@
 # B/X RPG pipeline
 
+- **v0.1.12 QUALIFIED CANDIDATE, not accepted:** PR #29, candidate `4c2ec20e1d2451ec35b42beaff706f9b0c961d36`, Actions `40703525609`: **115/115 Node and real Chrome success**. Source B24 pursuit procedure with a separate **original public authored corridor**, matched to seeded encounter, with zero actual chase rounds, no invented future sight, movement, win/escape, or private distance narration. Save v13 migration v1–v12; G08 partial and project 19%. Qualify docs, merge after green checks, verify exact main and Pages, then close out roadmap and published revision.
+- **Tentative next v0.1.13:** evidence for actual first B24 running-round decisions, movement, continued sight and time accounting; no automatic catch or escape from speed alone.
+
+
 - **v0.1.11 FULLY ACCEPTED on main:** PR #27 merged as `8f65816cdb5a6a32df55c19a74bd174937243c11`. Feature/test SHA `9455ac808f372548836acd6baea3a2874302c137` passed `40701524225` (**107/107 Node and real Chrome**), qualified documentation head `c62ab531ad8d6786bc4755df41b45809f634a967` passed `40701821048`, exact-main Node/Chrome `40701993598` and GitHub Pages `40701994779` **SUCCESS**. Website revision `v0.1.11`; authoritative full-vision progress **19%**, G08 partial.
 - **Accepted narrow source scope:** B24 potential running budgets after validated public pursuit decision, source rates and independent B20 load witness. Party 120 feet per hypothetical running round, goblin 60 feet, B24 max 30 character running rounds. Administrative stage `awaiting-route-and-round-evidence` with **0 actual rounds elapsed, no movement, map/path, continuing sight or chase outcome**. Save v12 migrates v1–v11; strict historic forgery refusal.
 - **Next exact milestone v0.1.12:** bounded original B/X route/line-of-sight prerequisite for the same unresolved pursuit. No simulated escape/capture, invented movement/rounds or general combat expansion.
