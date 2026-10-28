@@ -30,7 +30,7 @@ let tried=false;const check=setInterval(()=>{
     assert(doc.getElementById('log').firstElementChild.textContent.includes('goblin sighting remains established'),'handoff lost narration');
     doc.getElementById('save').click();
     const save=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
-    assert(save.schemaVersion===12&&save.activeEncounter.stage==='awaiting-referee-continuation','stage not persisted');
+    assert(save.schemaVersion===13&&save.activeEncounter.stage==='awaiting-referee-continuation','stage not persisted');
     assert(save.activeEncounter.visibility.identity==='goblin','player knowledge not persisted');
     doc.getElementById('reset').click();doc.getElementById('load').click();
     assert(text('encounter')==='Awaiting referee · Goblin visible within torchlight'&&text('revision')==='6','saved handoff did not load');

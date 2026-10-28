@@ -26,7 +26,7 @@ try {
   await delay(350);
   const boot=await dumpPage('');
   if(!boot.includes('data-boot-status="ready"') ||
-    !boot.includes('B/X B24 running-budget prerequisite ready.') ||
+    !boot.includes('B/X public corridor witness ready.') ||
     !boot.includes('Sample Fighter') || !boot.includes('4/4') ||
     !boot.includes('6 turns remaining'))throw Error(`Browser boot smoke failed: ${boot.slice(-1200)}`);
   const probe=await dumpPage('tests/browser-probe.html');
@@ -76,6 +76,10 @@ try {
   if(!budgeted.includes('data-smoke-status="passed"') ||
     !budgeted.includes('B24 zero-elapsed pursuit budget, migrations and refusals passed.'))
     throw Error(`B24 pursuit-budget Chrome probe failed: ${budgeted.slice(0,1850)}`);
+  const routed=await dumpPage('tests/pursuit-route-browser-probe.html');
+  if(!routed.includes('data-smoke-status="passed"') ||
+    !routed.includes('Original public corridor, no moved rounds and v13 save passed.'))
+    throw Error(`Original public B24 corridor Chrome smoke failed: ${routed.slice(0,1900)}`);
   console.log('Browser smoke passed: boot, encounter, both dispositions, save/load and authoritative 19% full-vision roadmap.');
 
 } finally {server.kill();}
