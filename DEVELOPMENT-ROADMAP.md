@@ -1,6 +1,6 @@
 # B/X RPG — Authoritative Development Roadmap
 
-**Project:** `Diabolicdonut/BX-RPG` · **Governance revision:** 1 (2026-10-27) · **Last fully accepted game revision:** **v0.1.12** · **Next engine checkpoint:** **v0.1.13**.
+**Project:** `Diabolicdonut/BX-RPG` · **Governance revision:** 1 (2026-10-27) · **Last fully accepted game revision:** **v0.1.13** · **Next engine checkpoint:** **v0.1.14**.
 
 > **This is the repository's authoritative LONG-TERM PRODUCT ROADMAP and development instructions.** All humans and AI development agents must read it together with `AGENTS.md`, the newest accepted entry in `audit.md`, `pipeline-state.md`, and current `main` before changing the game. GitHub's newest validated accepted code and audit remain authoritative for *what actually exists*. This document governs the desired end state, scope, work sequencing, evidence requirements and weighted progress. Disagreement is a blocking issue to reconcile, **never permission to silently overwrite accepted code**.
 
@@ -41,13 +41,13 @@ Client-only GitHub Pages is suitable for the current **public demonstration** bu
 | Gate | Deliverable (full denominator) | Weight | Status | Recorded evidence / limitation |
 |---|---|---:|---|---|
 | G01 | Deterministic intent and state boundary (demo scope) | 4 | accepted | src/state/state.js; tests/foundation.test.mjs |
-| G02 | Seeded dice and exact versioned save migration (v1–v13) | 4 | accepted | src/state/rng.js; src/state/storage.js; tests |
+| G02 | Seeded dice and exact versioned save migration (v1–v14) | 4 | accepted | src/state/rng.js; src/state/storage.js; tests |
 | G03 | Basic dungeon clock and six-turn torch demonstration | 3 | accepted | src/state/state.js; tests/exploration-turn.test.mjs |
 | G04 | Bounded wandering encounter and distance demonstration | 3 | accepted | src/content/encounters/level1-goblin.js; tests/encounter-contact.test.mjs |
 | G05 | Surprise, sight and player-information demonstration | 3 | accepted | tests/surprise.test.mjs; tests/perception.test.mjs |
 | G06 | Two evidence-gated nonpursuit demonstration outcomes | 2 | accepted | tests/disposition.test.mjs; tests/monster-withdrawal.test.mjs |
 | G07 | Complete B/X dungeon exploration, hazards and resource loop | 7 | planned | Acceptance plan below; not yet implemented |
-| G08 | Full encounter reactions, movement, evasion and pursuit | 6 | partial | v0.1.12 authored initial corridor verified; movement, sight continuity, reactions and outcomes outstanding |
+| G08 | Full encounter reactions, movement, evasion and pursuit | 6 | partial | v0.1.13 one witnessed 10-second running round; general movement, reactions and outcomes outstanding |
 | G09 | B/X combat, initiative, morale, saves and conditions | 8 | planned | Acceptance plan below; not yet implemented |
 | G10 | Seven B/X classes, creation, equipment and advancement | 7 | planned | Acceptance plan below; demo fighter is not character generation |
 | G11 | Complete Basic and Expert spellcasting and magical effects | 6 | planned | Acceptance plan below; not yet implemented |
@@ -103,7 +103,7 @@ Phases may progress in parallel **only** when prerequisites are met and nonconfl
 
 ### Current immediate dependency (preserve accepted GitHub controller)
 
-**Next:** `v0.1.13` — bounded original B/X first pursuit-round evidence and movement decision prerequisites, with explicitly supported location/sight adjudication and round accounting; no automatic capture, escape or invented referee facts.
+**Next:** `v0.1.14` — bounded second running round with independently authored action/route/sight evidence and corridor-end safety. The original B/X pursuit and B23 encounter-time rules remain governing; never invent a catch or escape.
 
 ## 6. Rules for all development workers
 
@@ -118,7 +118,7 @@ Phases may progress in parallel **only** when prerequisites are met and nonconfl
 
 ## 7. Revision and scope change log (newest first)
 
-- **2026-10-28 · v0.1.13 QUALIFIED CANDIDATE (not accepted):** Original Moldvay Basic B19/B23/B24 speed, 10-second encounter-round and pursuit procedures; scenario choices independently authored for this PUBLIC demo: both sides run 60 feet through a separately witnessed clear torchlit passage. The party chooses to run below its maximum 120 ft, preserving the original visible 20–30-foot separation without inventing a capture. Exactly one running round/10 seconds is recorded; no dungeon turn, torch, combat, RNG, capture or escape. Save v14 migrates v1–v13 and rejects forged history. Source/test head 68230d5cfdb0c2beff50a0c19353524855fd3a52 passed Actions 40725768046 (**122/122 Node and real Chrome**). PR #31 awaits qualified documentation, merge, main and Pages verification. Gate G08 stays partial; full roadmap **19%**. Next v0.1.14: separately evidenced second round or a validated contact boundary.
+- **2026-10-28 · v0.1.13 FULLY ACCEPTED:** Original B/X B19/B23/B24 first actual ten-second pursuit round, supported by separately authored public 60-ft pursuer/evader pace choice and full unobstructed torchlit segment witness. Maintained safe original separation; no catch, escape, combat, dice or premature dungeon/light turn. Exact round journal and stage, save v14 migrates v1–v13 with forgery refusal. Source/test `68230d5cfdb0c2beff50a0c19353524855fd3a52` Actions `40725768046` **122/122 Node plus real Chrome**; docs-qualified `8610b1d452266ae2d23b6e4e6b1a708e2d87d766` Actions `40726161021` **SUCCESS**. PR #31 merged as `4ef9ad6b374d063e4aa22d498e1650f694e5bf59`, exact-main Node/Chrome `40726302397` and Pages `40726303289` both **SUCCESS**. G08 still partial and full-vision 19%; next v0.1.14 separately evidenced second round and corridor-end safety.
 
 - **2026-10-28 · v0.1.12 FULLY ACCEPTED:** Original B/X **B24** pursuit procedure plus independent, original *public demo* 180-foot corridor witness, explicitly **not an official adventure map**. Authoritative seeded encounter separation privately reconciled with party at authored initial anchor and no obstruction at decision; future sight still unknown. Strict fixture/journal, zero running rounds, no movement, escape/capture, time/light/RNG/HP; save schema v13 migrates v1–v12 and rejects v13 route forgery. Candidate `4c2ec20e1d2451ec35b42beaff706f9b0c961d36` passed **115/115 Node and real Chrome** on Actions `40703525609`; docs-qualified `b5723cd5869d578168ce2bd95bda39e6f0f72c2b` passed `40703813411`. PR #29 merged at `e4ed9c805ebbd48f23ecd051e3ca77d8011178b3`; exact merged-main Node+Chrome `40703970330` and Pages `40703970496` **SUCCESS**. G08 remains **partial**; long-term **19%** unchanged. Next v0.1.13: first actual pursuit-round *evidence prerequisites*, with no invented movement or fate.
 
