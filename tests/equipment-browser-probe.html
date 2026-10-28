@@ -1,0 +1,51 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>B/X B20 public equipment evidence</title></head>
+<body data-smoke-status="pending"><iframe id="game" src="../index.html" title="B/X RPG"></iframe><pre id="result">Waiting...</pre><script type="module">
+import {createDemoState} from '../src/state/state.js';
+import {SAVE_KEY} from '../src/state/storage.js';
+const frame=document.getElementById('game');
+const end=(status,msg)=>{document.body.dataset.smokeStatus=status;document.getElementById('result').textContent=msg;};
+let done=false;const timer=setInterval(()=>{
+  const doc=frame.contentDocument;
+  if(done||doc?.getElementById('app')?.dataset.bootStatus!=='ready')return;
+  done=true;clearInterval(timer);
+  try{
+    const check=(yes,msg)=>{if(!yes)throw Error(msg);};
+    const field=id=>doc.getElementById(id).textContent;
+    const send=cmd=>{doc.getElementById('command').value=cmd;
+      doc.getElementById('command-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));};
+    frame.contentWindow.localStorage.setItem(SAVE_KEY,JSON.stringify(createDemoState(61)));
+    doc.getElementById('load').click();
+    send('establish public demo party load');
+    check(field('revision')==='0','premature equipment evidence accepted');
+    for(const cmd of ['we rest for one turn','we rest for one turn','establish pending encounter',
+      'adjudicate surprise','assess encounter visibility','handoff encounter',
+      'record public demo pursuit choice','review public demo pursuit rates'])send(cmd);
+    check(field('encounter')==='Pursuit rates reviewed · party equipment unestablished','prerequisites wrong');
+    send('establish public demo party load');
+    check(field('encounter')==='Public party load established · chase unresolved','rate not established');
+    check(field('revision')==='9'&&field('turns')==='2'&&field('draws')==='5',
+      'equipment witness altered time, RNG or state');
+    check(field('light').includes('4 turns remaining'),'equipment witness burned light');
+    const text=doc.getElementById('log').firstElementChild.textContent;
+    check(text.includes('170 coin-weights')&&text.includes('120 feet per round')&&
+      text.includes('unresolved'),'movement rate or pending chase missing');
+    check(!text.includes('goblin')&&!text.includes('monster'),'private opponent leaked');
+    doc.getElementById('save').click();
+    const saved=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
+    check(saved.schemaVersion===11&&saved.activeEncounter.stage==='awaiting-chase-adjudication',
+      'v11 stage missing');
+    check(saved.journal.at(-1).weightCoins===170&&
+      saved.journal.at(-1).band==='unarmored-or-up-to-400','B20 data not archived');
+    check(!('inventory' in saved.character),'authored sample should not mutate permanent inventory');
+    doc.getElementById('reset').click();doc.getElementById('load').click();
+    check(field('encounter')==='Public party load established · chase unresolved','load failed');
+    for(const cmd of ['establish public demo party load','review public demo pursuit rates',
+      'record public demo pursuit choice','we rest for one turn','roll d6',
+      'resolve public demo nonpursuit'])send(cmd);
+    check(field('revision')==='9'&&field('turns')==='2'&&field('draws')==='5',
+      'unsupported chase action mutated saved state');
+    end('passed','Original B20 public equipment rate, save integrity and no chase passed.');
+  }catch(e){end('failed',String(e.stack||e));}
+},25);
+setTimeout(()=>{if(!done){clearInterval(timer);end('failed','Game never booted');}},5000);
+</script></body></html>
