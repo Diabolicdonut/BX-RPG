@@ -1,10 +1,10 @@
 # Acceptance audit (newest first)
 
-## v0.1.14 — QUALIFIED CANDIDATE — two actual B/X running rounds, no fabricated capture
+## v0.1.14 — FULLY ACCEPTED — two actual B/X running rounds, no fabricated capture
 
 Original Moldvay Basic B19/B23/B24 running/time procedures; *independent original public scene* evidence confirms an additional 60-ft party and monster movement along the same straight, lit and unobstructed corridor in a second ten-second round. Internally the party is 120 ft along the 180-ft corridor, monster initial seeded separation +120 ft (at most 150 ft), preserved separation/sight, and the chase is **unresolved**; upcoming corridor boundary requires new evidence. The journal records exact 2nd round and 20 cumulative encounter seconds, not private monster coordinates. No dungeon turn/torch, dice, HP, capture or escape invented. Schema v15 exact migration v1–v14; forged history refused. G08 remains partial, 19% full vision.
 
-Initial candidate failed JavaScript parsing due to missing stage-expression parenthesis, corrected without weakening validators. Tested source head `e2a3b3f09991181761ea43cca4693386922131d8`, Actions `40727766246`: **129/129 Node + real Chrome**. PR #33 remains subject to docs qualification, merge, exact-main CI and Pages before acceptance.
+Initial candidate failed JavaScript parsing due to missing stage-expression parenthesis, corrected without weakening validators. Tested source head `e2a3b3f09991181761ea43cca4693386922131d8`, Actions `40727766246`: **129/129 Node + real Chrome**. PR #33 documentation-qualified head `3d1b225247a0c58c2bf82bf755c63edf90a430b6` Actions `40728047833` successful (Node and Chrome); merged `2d3b3dad1c5829af6643fbcae2f828c4a7966214`. Exact merged-main Node+Chrome `40728226710` and Pages `40728224497` **SUCCESS**. Final acceptance closeout changes only roadmap, progress manifest and revision tests, not game mechanics.
 
 
 ## v0.1.13 — FULLY ACCEPTED — one actual B/X pursuit round (G08 partial)

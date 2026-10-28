@@ -14,7 +14,7 @@ const timer=setInterval(()=>{
     const summary=widget.querySelector('summary');
     if(!summary)fail('progress summary missing');
     const label=summary.textContent;
-    if(!label.includes('Rev v0.1.13'))fail('accepted version not displayed: '+label);
+    if(!label.includes('Rev v0.1.14'))fail('accepted version not displayed: '+label);
     if(!label.includes('Roadmap 19%'))fail('full-vision percentage not shown: '+label);
     if(label.includes('36%'))fail('outdated limited roadmap still displayed');
     const detail=widget.querySelector('details');detail.open=true;
