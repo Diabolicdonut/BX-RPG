@@ -1,0 +1,49 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>B24 pursuit-round budget</title></head>
+<body data-smoke-status="pending"><iframe id="game" src="../index.html" title="B/X RPG"></iframe><pre id="result">Waiting...</pre>
+<script type="module">
+import {createDemoState} from '../src/state/state.js';
+import {SAVE_KEY} from '../src/state/storage.js';
+const frame=document.getElementById('game');
+const end=(s,m)=>{document.body.dataset.smokeStatus=s;document.getElementById('result').textContent=m;};
+let started=false;const interval=setInterval(()=>{
+ const doc=frame.contentDocument;
+ if(started||doc?.getElementById('app')?.dataset.bootStatus!=='ready')return;
+ started=true;clearInterval(interval);
+ try {
+  const ok=(b,msg)=>{if(!b)throw Error(msg);};
+  const val=k=>doc.getElementById(k).textContent;
+  const send=cmd=>{doc.getElementById('command').value=cmd;
+    doc.getElementById('command-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));};
+  frame.contentWindow.localStorage.setItem(SAVE_KEY,JSON.stringify(createDemoState(61)));
+  doc.getElementById('load').click();
+  send('review public demo pursuit round budget');
+  ok(val('revision')==='0','early budget accepted');
+  for(const k of ['we rest for one turn','we rest for one turn','establish pending encounter','adjudicate surprise',
+    'assess encounter visibility','handoff encounter','record public demo pursuit choice',
+    'review public demo pursuit rates','establish public demo party load'])send(k);
+  ok(val('encounter')==='Public party load established · chase unresolved','party load prerequisite missing');
+  send('review public demo pursuit round budget');
+  ok(val('encounter')==='Running budget reviewed · route and rounds unresolved','budget not reviewed');
+  ok(val('revision')==='10'&&val('turns')==='2'&&val('draws')==='5','budget mutated clock/RNG');
+  ok(val('light').includes('4 turns remaining'),'budget consumed torch');
+  const narration=doc.getElementById('log').firstElementChild.textContent;
+  ok(narration.includes('120 feet')&&narration.includes('30-round limit')&&
+    narration.includes('No round has elapsed')&&narration.includes('unresolved'),
+    'unverified budget or missing no-movement warning');
+  ok(!narration.includes('goblin')&&!narration.includes('60 feet'),'monster-rate leak');
+  doc.getElementById('save').click();
+  const saved=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
+  ok(saved.schemaVersion===12&&saved.activeEncounter.stage==='awaiting-route-and-round-evidence',
+    'v12 state wrong');
+  ok(saved.journal.at(-1).kind==='encounter.pursuit-round-budget-reviewed' &&
+    !('rounds' in saved.journal.at(-1)), 'budget record incorrectly logs elapsed rounds');
+  doc.getElementById('reset').click();doc.getElementById('load').click();
+  ok(val('encounter')==='Running budget reviewed · route and rounds unresolved','reload lost budget');
+  for(const k of ['review public demo pursuit round budget','establish public demo party load',
+    'we rest for one turn','roll d6','resolve public demo nonpursuit','chase them'])send(k);
+  ok(val('revision')==='10'&&val('turns')==='2'&&val('draws')==='5','invalid actions mutated saved pursuit');
+  end('passed','B24 zero-elapsed pursuit budget, migrations and refusals passed.');
+ } catch(e){end('failed',String(e.stack||e));}
+},25);
+setTimeout(()=>{if(!started){clearInterval(interval);end('failed','Game never booted');}},5000);
+</script></body></html>
