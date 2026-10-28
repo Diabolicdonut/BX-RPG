@@ -1,10 +1,10 @@
 # Acceptance audit (newest first)
 
-## v0.1.12 — QUALIFIED CANDIDATE — independently authored initial corridor evidence
+## v0.1.12 — FULLY ACCEPTED — independently authored initial corridor evidence
 
 **Scope and authority:** Original Moldvay Basic (1981) B24 pursuit mechanics are authoritative; the **180-foot straight corridor is an original public authored encounter fixture**, NOT a B/X book map or imported adventure. With previously confirmed visible pursuit, B19 rate, B20 170-cn load, and B24 zero-elapsed budget, a strict matching corridor witness establishes a static initial party anchor, a private encounter-distance-aligned initial monster anchor and no authored obstruction *at decision time*. This does **not** establish later line of sight, actual movement, running rounds, catch/escape, or referee secrets. New `awaiting-first-pursuit-round-evidence` stage, exact new terminal journal witness and schema v13 (exact v1–v12 migration). Rejected forged past/future facts and all unauthorized operations; no RNG, HP, time/light or player-information changes.
 
-**Candidate:** SHA `4c2ec20e1d2451ec35b42beaff706f9b0c961d36`, Actions `40703525609` **115/115 Node plus real Chrome** including initial corridor, persistence, refusal and player-information probe. PR #29 is not yet accepted and requires docs qualification, merge and exact-main CI/Pages verification. G08 partial and 19% full vision unchanged.
+**Candidate:** SHA `4c2ec20e1d2451ec35b42beaff706f9b0c961d36`, Actions `40703525609` **115/115 Node plus real Chrome** including initial corridor, persistence, refusal and player-information probe. PR #29 qualified documentation at `b5723cd5869d578168ce2bd95bda39e6f0f72c2b`, Actions `40703813411` (Node+Chrome) **SUCCESS**; merged into main `e4ed9c805ebbd48f23ecd051e3ca77d8011178b3`. Exact-main Node+Chrome `40703970330` and Pages `40703970496` **SUCCESS**. The final acceptance closeout synchronizes only roadmap, JSON mirror, README, audit/pipeline, legacy pointer and Chrome version probe; game mechanics unchanged. G08 partial and 19% full vision unchanged.
 
 
 ## v0.1.11 — FULLY ACCEPTED — B24 running-round movement budget (G08 partial)
