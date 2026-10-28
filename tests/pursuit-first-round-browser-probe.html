@@ -1,0 +1,50 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>B/X first actual pursuit round</title></head>
+<body data-smoke-status="pending"><iframe id="game" src="../index.html" title="B/X RPG"></iframe><pre id="result">Waiting...</pre><script type="module">
+import {createDemoState} from '../src/state/state.js';
+import {SAVE_KEY} from '../src/state/storage.js';
+const frame=document.getElementById('game');
+const end=(s,m)=>{document.body.dataset.smokeStatus=s;document.getElementById('result').textContent=m;};
+let started=false;const timer=setInterval(()=>{
+ const doc=frame.contentDocument;
+ if(started||doc?.getElementById('app')?.dataset.bootStatus!=='ready')return;
+ started=true;clearInterval(timer);
+ try {
+  const ok=(b,m)=>{if(!b)throw Error(m);};
+  const val=k=>doc.getElementById(k).textContent;
+  const send=cmd=>{doc.getElementById('command').value=cmd;
+    doc.getElementById('command-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));};
+  frame.contentWindow.localStorage.setItem(SAVE_KEY,JSON.stringify(createDemoState(61)));
+  doc.getElementById('load').click();
+  send('advance public demo first pursuit round');
+  ok(val('revision')==='0','early first round accepted');
+  for(const cmd of ['we rest for one turn','we rest for one turn','establish pending encounter',
+    'adjudicate surprise','assess encounter visibility','handoff encounter',
+    'record public demo pursuit choice','review public demo pursuit rates',
+    'establish public demo party load','review public demo pursuit round budget',
+    'establish public demo pursuit corridor'])send(cmd);
+  ok(val('encounter')==='Public corridor verified · pursuit rounds unresolved','route preparation failed');
+  send('advance public demo first pursuit round');
+  ok(val('encounter')==='Pursuit round 1 recorded · target still visible · unresolved','real first round missing');
+  ok(val('revision')==='12'&&val('turns')==='2'&&val('draws')==='5','wrong elapsed clock or dice');
+  ok(val('light').includes('4 turns remaining'),'one encounter round consumed full torch turn');
+  const narration=doc.getElementById('log').firstElementChild.textContent;
+  ok(narration.includes('each travel 60 feet')&&narration.includes('ten-second pursuit round')&&
+    narration.includes('creature remains visible')&&narration.includes('still unresolved'),
+    'first round did not record correct motion');
+  ok(!narration.includes('goblin')&&!narration.includes('monsterPositionFeet'),'hidden monster leaked');
+  doc.getElementById('save').click();
+  const saved=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
+  ok(saved.schemaVersion===14&&saved.activeEncounter.stage==='awaiting-second-pursuit-round-evidence','v14 stage missing');
+  ok(saved.journal.at(-1).elapsedSeconds===10&&saved.journal.at(-1).round===1&&
+    saved.journal.at(-1).partyMoveFeet===60&&saved.journal.at(-1).monsterMoveFeet===60&&
+    saved.journal.at(-1).sightAfter==='visible'&&saved.journal.at(-1).result==='unresolved','first actual round incorrect');
+  doc.getElementById('reset').click();doc.getElementById('load').click();
+  ok(val('encounter')==='Pursuit round 1 recorded · target still visible · unresolved','reload lost first running round');
+  for(const cmd of ['advance public demo first pursuit round','establish public demo pursuit corridor',
+    'we rest for one turn','roll d6','resolve public demo nonpursuit','catch the goblin'])send(cmd);
+  ok(val('revision')==='12'&&val('turns')==='2'&&val('draws')==='5','unsupported continuation changed save');
+  end('passed','One genuine B24 chase round, ten seconds, saved and still unresolved passed.');
+ }catch(e){end('failed',String(e.stack||e));}
+},25);
+setTimeout(()=>{if(!started){clearInterval(timer);end('failed','Game never booted');}},5000);
+</script></body></html>

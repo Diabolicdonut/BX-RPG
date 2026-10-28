@@ -32,7 +32,7 @@ const interval=setInterval(()=>{
       !message.includes('2 goblins')&&!message.includes('monsterroll'),'narration disclosure wrong');
     doc.getElementById('save').click();
     const saved=JSON.parse(frame.contentWindow.localStorage.getItem(SAVE_KEY));
-    assert(saved.schemaVersion===13,'wrong save schema');
+    assert(saved.schemaVersion===14,'wrong save schema');
     assert(saved.activeEncounter.visibility.identity==='goblin','known identity not saved');
     assert(saved.activeEncounter.visibility.distance==='within-torchlight','qualitative range not saved');
     doc.getElementById('reset').click();doc.getElementById('load').click();
